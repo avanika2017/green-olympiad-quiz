@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Olympiad Quiz Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --topic-color:#2E7D32;
+    --topic-light:#C8E6C9;
+    --ink:#22303A;
+    --grey:#607D8B;
+    --paper:#FBF6E8;
+    --kraft:#F1E4C6;
+    --kraft-dark:#E4D3A8;
+    --green-ok:#2f6b52;
+    --red-bad:#B84A3E;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;}
+  body{
+    font-family:'Quicksand', -apple-system, 'Segoe UI', sans-serif;
+    background: radial-gradient(ellipse at top, #3d2f22 0%, #1c1710 100%);
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink);
+    padding:1.2rem;
+  }
+  .display{font-family:'Baloo 2','Comic Sans MS','Segoe UI Rounded',sans-serif;}
+
+  #app{
+    width:min(1000px, 100%);
+    min-height:min(700px, 90vh);
+    background:var(--kraft);
+    border-radius:24px;
+    box-shadow:0 30px 60px rgba(0,0,0,.5), 0 0 0 10px #3d2f22, 0 0 0 12px #6b5236;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    position:relative;
+  }
+
+  .screen{ display:none; flex-direction:column; flex:1; }
+  .screen.active{ display:flex; }
+
+  /* ---------- HEADER ---------- */
+  #appHeader{
+    background:linear-gradient(135deg,#2E7D32,#1B5E20);
+    color:#fff; padding:1.4rem 1.6rem 1.2rem;
+    text-align:center;
+    transition:background .4s ease;
+  }
+  #appHeader h1{
+    font-size:clamp(1.5rem,4vw,2.1rem); margin:0 0 .25rem;
+    text-shadow:0 3px 0 rgba(0,0,0,.18);
+  }
+  #appHeader p{ margin:0; font-size:.95rem; color:rgba(255,255,255,.9); }
+
+  /* ---------- HOME / TOPIC SELECT ---------- */
+  #homeScreen{ padding:1.4rem 1.6rem 1.8rem; overflow-y:auto; }
+  .topic-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:.9rem; margin-top:1rem;
+  }
+  .topic-card{
+    background:var(--paper); border-radius:16px; padding:1.1rem 1rem;
+    cursor:pointer; text-align:left;
+    border:3px solid var(--card-color, #ccc);
+    box-shadow:0 4px 0 rgba(0,0,0,.12);
+    transition:transform .15s ease, box-shadow .15s ease;
+    display:flex; flex-direction:column; gap:.35rem;
+  }
+  .topic-card:hover{ transform:translateY(-3px); box-shadow:0 7px 0 rgba(0,0,0,.14); }
+  .topic-card .tc-top{ display:flex; align-items:center; gap:.6rem; }
+  .topic-card .tc-emoji{ font-size:1.9rem; }
+  .topic-card .tc-name{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.05rem; color:var(--card-color,#333); }
+  .topic-card .tc-count{ font-size:.82rem; color:var(--grey); font-weight:700; }
+  .topic-card .tc-best{ font-size:.78rem; color:var(--green-ok); font-weight:700; min-height:1.1em; }
+
+  .mixed-card{
+    grid-column:1/-1;
+    background:linear-gradient(135deg,#E1665B,#D98E33);
+    color:#fff; border:3px solid #fff;
+  }
+  .mixed-card .tc-name{ color:#fff; font-size:1.2rem; }
+  .mixed-card .tc-count{ color:rgba(255,255,255,.9); }
+  .mixed-card .tc-best{ color:#fff9; }
+
+  /* ---------- QUIZ SCREEN ---------- */
+  #quizScreen{ padding:1.2rem 1.6rem 1.6rem; }
+  .quiz-topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:.6rem; flex-wrap:wrap; gap:.4rem;
+  }
+  #quizProgressLabel{ font-weight:800; font-family:'Baloo 2',sans-serif; color:var(--topic-color); font-size:.95rem; }
+  #quizScoreLabel{ font-weight:800; font-family:'Baloo 2',sans-serif; color:var(--ink); font-size:.95rem; }
+  #backHomeBtn{
+    border:none; background:var(--paper); border-radius:999px; padding:.35rem .9rem;
+    font-family:'Quicksand',sans-serif; font-weight:700; cursor:pointer; font-size:.82rem; color:var(--ink);
+    box-shadow:0 2px 0 #d8c48f;
+  }
+  #progressTrack{ height:8px; background:#d8c48f; border-radius:5px; overflow:hidden; margin-bottom:1.1rem; }
+  #progressFill{ height:100%; width:0%; background:linear-gradient(90deg,var(--topic-color),var(--topic-light)); border-radius:5px; transition:width .35s ease; }
+
+  .q-card{
+    background:var(--paper); border-radius:18px; padding:1.4rem 1.5rem;
+    box-shadow:0 6px 0 rgba(0,0,0,.1);
+    border:3px solid var(--topic-color);
+    flex:1;
+    display:flex; flex-direction:column;
+  }
+  .q-text{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:clamp(1.05rem,2.6vw,1.35rem);
+    color:var(--ink); margin-bottom:1.2rem; line-height:1.35;
+  }
+  .q-opts{ display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+  .q-opt{
+    background:#fff; border:2.5px solid #d8c48f; border-radius:12px;
+    padding:.85rem 1rem; font-family:'Quicksand',sans-serif; font-weight:700; font-size:.98rem;
+    color:var(--ink); cursor:pointer; text-align:left; position:relative;
+    transition:transform .12s ease, background .2s ease, border-color .2s ease;
+    display:flex; align-items:center; gap:.5rem;
+  }
+  .q-opt .opt-letter{
+    width:26px; height:26px; border-radius:50%; background:var(--topic-light); color:var(--topic-color);
+    display:flex; align-items:center; justify-content:center; font-size:.82rem; font-weight:800; flex-shrink:0;
+  }
+  .q-opt:hover:not(.locked){ transform:translateY(-2px); }
+  .q-opt.correct{ background:#DCF5DE; border-color:var(--green-ok); animation:popIn .35s ease; }
+  .q-opt.correct .opt-letter{ background:var(--green-ok); color:#fff; }
+  .q-opt.wrong{ background:#FBE1DE; border-color:var(--red-bad); animation:shake .4s ease; }
+  .q-opt.wrong .opt-letter{ background:var(--red-bad); color:#fff; }
+  .q-opt.locked{ cursor:default; }
+  @keyframes popIn{ 0%{transform:scale(.9);} 60%{transform:scale(1.04);} 100%{transform:scale(1);} }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+
+  .q-feedback{
+    margin-top:1rem; font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1rem;
+    min-height:1.5em; text-align:center;
+  }
+  .q-feedback.ok{ color:var(--green-ok); }
+  .q-feedback.bad{ color:var(--red-bad); }
+
+  #nextBtnWrap{ text-align:center; margin-top:.9rem; min-height:2.6rem; }
+  .nextBtn{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1rem;
+    background:var(--topic-color); color:#fff; border:none; border-radius:999px;
+    padding:.6rem 1.8rem; cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.2);
+  }
+
+  /* ---------- RESULTS SCREEN ---------- */
+  #resultsScreen{ padding:1.6rem 1.8rem 1.8rem; overflow-y:auto; align-items:center; text-align:center; }
+  .score-badge{
+    width:150px; height:150px; border-radius:50%; margin:.6rem auto 1rem;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:radial-gradient(circle,var(--topic-light),var(--topic-color));
+    color:#fff; box-shadow:0 8px 0 rgba(0,0,0,.15);
+  }
+  .score-badge .sb-num{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:2.2rem; line-height:1; }
+  .score-badge .sb-total{ font-size:.85rem; font-weight:700; }
+  #resultMsg{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.4rem; margin:.2rem 0 .3rem; color:var(--topic-color); }
+  #resultSub{ color:var(--ink-soft,#4B5F45); margin-bottom:1.2rem; }
+  .result-actions{ display:flex; gap:.7rem; flex-wrap:wrap; justify-content:center; margin-bottom:1.3rem; }
+  .actionBtn{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:.95rem;
+    border:none; border-radius:999px; padding:.65rem 1.5rem; cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.15);
+  }
+  .actionBtn.primary{ background:var(--topic-color); color:#fff; }
+  .actionBtn.secondary{ background:var(--paper); color:var(--ink); }
+
+  #reviewList{ width:100%; text-align:left; max-width:640px; margin:0 auto; }
+  #reviewList h3{ font-family:'Baloo 2',sans-serif; text-align:center; color:var(--ink); margin-bottom:.6rem;}
+  .review-item{
+    background:var(--paper); border-radius:12px; padding:.8rem 1rem; margin-bottom:.6rem;
+    border-left:5px solid var(--red-bad);
+  }
+  .review-item .ri-q{ font-weight:700; font-size:.92rem; margin-bottom:.3rem; }
+  .review-item .ri-a{ font-size:.86rem; color:var(--green-ok); font-weight:700; }
+  .review-item .ri-your{ font-size:.86rem; color:var(--red-bad); }
+
+  @media (max-width:600px){
+    .q-opts{ grid-template-columns:1fr; }
+    #app{ border-radius:16px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="appHeader">
+    <h1 class="display">🌍 Green Olympiad Quiz Challenge</h1>
+    <p id="headerSub">Pick a topic and test what you know!</p>
+  </div>
+
+  <div id="homeScreen" class="screen active">
+    <div class="topic-grid" id="topicGrid"></div>
+  </div>
+
+  <div id="quizScreen" class="screen">
+    <div class="quiz-topbar">
+      <button id="backHomeBtn">⬅ Topics</button>
+      <div id="quizProgressLabel"></div>
+      <div id="quizScoreLabel"></div>
+    </div>
+    <div id="progressTrack"><div id="progressFill"></div></div>
+    <div class="q-card">
+      <div class="q-text" id="qText"></div>
+      <div class="q-opts" id="qOpts"></div>
+      <div class="q-feedback" id="qFeedback"></div>
+      <div id="nextBtnWrap"></div>
+    </div>
+  </div>
+
+  <div id="resultsScreen" class="screen">
+    <div class="score-badge">
+      <div class="sb-num" id="scoreNum">0</div>
+      <div class="sb-total" id="scoreTotal">out of 0</div>
+    </div>
+    <div id="resultMsg"></div>
+    <div id="resultSub"></div>
+    <div class="result-actions">
+      <button class="actionBtn primary" id="retryBtn">↺ Try Again</button>
+      <button class="actionBtn secondary" id="homeBtn">🏠 Choose Another Topic</button>
+    </div>
+    <div id="reviewList"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const TOPIC_META = [
+    { key:"Biodiversity & Animals", emoji:"🐾", color:"#2E7D32", light:"#C8E6C9" },
+    { key:"Waste Management", emoji:"🗑️", color:"#6D4C41", light:"#D7CCC8" },
+    { key:"Energy", emoji:"⚡", color:"#EF6C00", light:"#FFE0B2" },
+    { key:"Air Pollution", emoji:"💨", color:"#607D8B", light:"#CFD8DC" },
+    { key:"Water", emoji:"💧", color:"#1565C0", light:"#BBDEFB" },
+    { key:"Forests & Wildlife", emoji:"🌳", color:"#1B5E20", light:"#C8E6C9" },
+    { key:"Sustainability & Mission LiFE", emoji:"🌏", color:"#6A1B9A", light:"#E1BEE7" },
+    { key:"Ecosystems, Climate & Food Chains", emoji:"🍄", color:"#00695C", light:"#B2DFDB" },
+    { key:"Noise, E-Waste & Plastic Pollution", emoji:"🔊", color:"#C62828", light:"#FFCDD2" },
+    { key:"Green Living, Jobs & Schemes", emoji:"💼", color:"#283593", light:"#C5CAE9" },
+    { key:"Earth Science & Adaptations", emoji:"🌗", color:"#00838F", light:"#B2EBF2" }
+  ];
+
+  const QUIZ_DATA = [{"topic": "Biodiversity & Animals", "q": "Which of the following is NOT a type of biotic component of biodiversity?", "opts": ["Trees", "Rock", "Sunflower", "Bacteria"], "correct": 1}, {"topic": "Biodiversity & Animals", "q": "Animals that can breathe both on land and underwater are classified as?", "opts": ["Amphibians", "Reptiles", "Fish", "Mammals"], "correct": 0}, {"topic": "Biodiversity & Animals", "q": "Mammals feed their babies milk. Amongst the following, which is the largest land mammal?", "opts": ["Giraffe", "Blue whale", "African elephant", "Hippopotamus"], "correct": 2}, {"topic": "Biodiversity & Animals", "q": "Which of the following does NOT lay eggs, but instead gives birth to its offspring?", "opts": ["Tuna", "Catfish", "Octopus", "Dolphins"], "correct": 3}, {"topic": "Biodiversity & Animals", "q": "From the following options, which is the biggest direct threat to biodiversity worldwide?", "opts": ["Climate change", "Habitat destruction", "Invasive species", "Overexploitation of resources"], "correct": 1}, {"topic": "Biodiversity & Animals", "q": "Homes (habitat) of our wildlife are lost due to which reason?", "opts": ["Clearing of land for agriculture", "Use of wood in building & construction", "Constructing buildings", "All the options listed here"], "correct": 3}, {"topic": "Biodiversity & Animals", "q": "Which of the following animals is most affected by microplastics in oceans?", "opts": ["Lion", "Turtle", "Zebra", "Polar bear"], "correct": 1}, {"topic": "Biodiversity & Animals", "q": "Illegal wildlife trade threatens animals for their body parts. Which species is threatened by illegal trade of ivory?", "opts": ["Pangolins", "Rhinos", "Elephants", "Tigers"], "correct": 2}, {"topic": "Waste Management", "q": "Compost is a heap of manure made by decaying vegetation and organic residues. Which item is included in compost?", "opts": ["Rubber", "Plastic", "Leaves", "Bricks"], "correct": 2}, {"topic": "Waste Management", "q": "___ waste consists of glass, metal, and high-grade plastic.", "opts": ["Recyclable", "Organic", "Gaseous", "Inert"], "correct": 0}, {"topic": "Waste Management", "q": "What is the most common type of waste generated in households?", "opts": ["Electronic waste", "Hazardous waste", "Plastic waste", "Organic waste"], "correct": 3}, {"topic": "Waste Management", "q": "Which colour bin is commonly used for disposing non-biodegradable waste?", "opts": ["Red", "Blue", "Yellow", "Green"], "correct": 1}, {"topic": "Waste Management", "q": "Which of the following CANNOT be used in preparing compost from household waste?", "opts": ["Unused batteries", "Dried leaves", "Leftover food", "Fruit peels"], "correct": 0}, {"topic": "Waste Management", "q": "What is waste?", "opts": ["Anything that is no longer useful", "Anything that is used occasionally", "Anything that is stored for longer duration", "All the options listed here"], "correct": 0}, {"topic": "Waste Management", "q": "What is solid waste management?", "opts": ["Dumping of waste outside the house", "Burning waste", "Throwing garbage in river or drain", "Scientific collection, transportation & disposal of waste materials"], "correct": 3}, {"topic": "Waste Management", "q": "Which of the following will decompose the fastest?", "opts": ["Glass bottle", "Styrofoam cup", "Banana peel", "Metal can"], "correct": 2}, {"topic": "Energy", "q": "Why is black colour used in the inside walls of a solar cooker?", "opts": ["It matches the ambience of surroundings", "It reduces spots in cooker", "It absorbs more heat", "It doesn't absorb heat"], "correct": 2}, {"topic": "Energy", "q": "Which energy is used in wind turbines to produce electricity?", "opts": ["Kinetic energy", "Potential energy", "Both a) and b)", "None of the above"], "correct": 0}, {"topic": "Energy", "q": "Which one of the following uses LESS energy?", "opts": ["Light-emitting diode (LED)", "Fluorescent bulb", "Compact fluorescent bulb", "Incandescent bulb"], "correct": 0}, {"topic": "Energy", "q": "Name the statutory body responsible for promoting energy efficiency in India.", "opts": ["Ministry of Environment, Forest and Climate Change", "Ministry of Culture", "Bureau of Energy Efficiency", "Central Pollution Control Board"], "correct": 2}, {"topic": "Energy", "q": "Which of the following is a non-renewable source of energy?", "opts": ["Wind", "Coal", "Sun", "Forest"], "correct": 1}, {"topic": "Energy", "q": "Turning off lights when not needed is a step towards ___.", "opts": ["Energy conservation", "Energy efficiency", "Energy transition", "None of the options listed here"], "correct": 0}, {"topic": "Energy", "q": "Non-renewable energy sources are finite and are not replenished as fast as they are consumed. Which of the following is non-renewable?", "opts": ["Wind", "Coal", "Solar", "Hydro"], "correct": 1}, {"topic": "Energy", "q": "Solar energy is derived from the sun. Which device can harness solar energy at home?", "opts": ["Gas stove", "Geyser", "Solar cooker", "Diesel generator"], "correct": 2}, {"topic": "Air Pollution", "q": "Out of the following, which is NOT a natural source of air pollution?", "opts": ["Factories", "Forest", "Power plants", "Burning of dung cakes"], "correct": 1}, {"topic": "Air Pollution", "q": "What colour of the AQI lets us know that the air outside is 'unhealthy'?", "opts": ["Green", "Orange", "Yellow", "Blue"], "correct": 1}, {"topic": "Air Pollution", "q": "The main reason behind the yellowing of the Taj Mahal is ___.", "opts": ["Sulphur dioxide", "Particulate matter", "Carbon monoxide", "Smog"], "correct": 1}, {"topic": "Air Pollution", "q": "This poisonous gas comes from incomplete burning of petrol & diesel, and reduces the oxygen-carrying capacity of blood.", "opts": ["Carbon dioxide", "Sulphur oxides", "Carbon monoxide", "Sulphur dioxides"], "correct": 2}, {"topic": "Air Pollution", "q": "SMOG is ___.", "opts": ["derived from fog", "a combination of smoke and fog", "derived from smoke", "derived from water vapour"], "correct": 1}, {"topic": "Air Pollution", "q": "Air quality is a serious concern in major metro cities of India. Which app helps track air quality in Indian cities?", "opts": ["Arogya Setu", "AQI India", "SAFAR", "BHIM"], "correct": 2}, {"topic": "Air Pollution", "q": "When the smoke emitted by industries mixes with fog, it forms ___.", "opts": ["Smog", "Smoke", "Rain", "Hail"], "correct": 0}, {"topic": "Air Pollution", "q": "Increasing carbon dioxide causes ___ up of the atmosphere.", "opts": ["Warming", "Cooling", "Freezing", "Volatilization"], "correct": 0}, {"topic": "Water", "q": "Why should we avoid pouring harmful substances like medicines down the drain?", "opts": ["It makes the water smell nice", "It contaminates water and harms the environment", "It makes the water look clean", "It removes bacteria from the water"], "correct": 1}, {"topic": "Water", "q": "What is rainwater harvesting?", "opts": ["Collecting rainwater for future use", "Allowing rainwater to flow away", "Using rainwater only for drinking purpose", "Collecting rainwater for pollution check"], "correct": 0}, {"topic": "Water", "q": "I am the water that is safe for you to drink. Who am I?", "opts": ["Saltwater", "Wastewater", "Grey water", "Freshwater"], "correct": 3}, {"topic": "Water", "q": "I am the most salty sea on the planet. Who am I?", "opts": ["Dead Sea", "Mediterranean Sea", "Arabian Sea", "Caribbean Sea"], "correct": 0}, {"topic": "Water", "q": "A river is being polluted by industrial waste. What might happen to the fish living there?", "opts": ["They would fall ill or die", "They would become healthy and strong", "They will get more food to eat", "They will not be affected"], "correct": 0}, {"topic": "Water", "q": "Why is it important to harvest rainwater?", "opts": ["To overcome water shortage", "To contaminate water", "To increase water pollution", "To degrade the environment"], "correct": 0}, {"topic": "Water", "q": "Which of the following is a source of freshwater?", "opts": ["Seas", "Oceans", "Rivers", "All the options listed here"], "correct": 2}, {"topic": "Water", "q": "How can we purify water at home?", "opts": ["Boiling", "Adding flavouring agents", "Freezing", "None of the options listed here"], "correct": 0}, {"topic": "Forests & Wildlife", "q": "This is a non-violent movement started by villagers in Uttarakhand in 1973 to protect trees. Name it.", "opts": ["Tehri Dam", "Save Silent Valley Movement", "Chipko Movement", "Narmada Bachao Andholan"], "correct": 2}, {"topic": "Forests & Wildlife", "q": "A root bridge is a bridge formed of living plant roots, most commonly seen in the northeastern part of India. Name the state.", "opts": ["Meghalaya", "Assam", "Arunachal Pradesh", "Tripura"], "correct": 0}, {"topic": "Forests & Wildlife", "q": "Declared in 1973, name India's national animal.", "opts": ["Elephant", "Lion", "Royal Bengal Tiger", "Peacock"], "correct": 2}, {"topic": "Forests & Wildlife", "q": "Tiger and Cheetah are examples of carnivores. Which of the following is NOT a carnivore?", "opts": ["Wolf", "Leopard", "Hyena", "Deer"], "correct": 3}, {"topic": "Forests & Wildlife", "q": "Forests are lungs of the Earth. True or False?", "opts": ["True", "False"], "correct": 0}, {"topic": "Forests & Wildlife", "q": "The process of planting trees on land that was previously not forested is called ___.", "opts": ["Desertification", "Afforestation", "Pollution", "Deforestation"], "correct": 1}, {"topic": "Forests & Wildlife", "q": "Trees help in reducing pollution and offer several benefits. Trees are rightly known as the ___ of the planet.", "opts": ["Limbs", "Heart", "Lungs", "Brain"], "correct": 2}, {"topic": "Forests & Wildlife", "q": "Ecotourism promotes conservation while enjoying nature. You are an eco-tourist if you:", "opts": ["Throw garbage in the natural area", "Use bicycles or travel on foot", "Play loud music", "Pluck leaves and flowers"], "correct": 1}, {"topic": "Sustainability & Mission LiFE", "q": "Mission LiFE has a list of individual actions that are a boon to the environment. Which action is INCORRECT?", "opts": ["Use plastic bags for shopping instead of cloth bags", "Prepare organic manure from cow dung and apply to farms", "Plant trees to reduce the impact of pollution", "Switch off vehicle engine at red lights and railway crossings"], "correct": 0}, {"topic": "Sustainability & Mission LiFE", "q": "What does 'LiFE' in Mission LiFE stand for?", "opts": ["Lifestyle for Environment", "Live for Earth", "Lifestyle for Earth", "None of the above"], "correct": 0}, {"topic": "Sustainability & Mission LiFE", "q": "The Sustainable Development Goals (SDGs), also called the Global Goals, are a set of how many interconnected goals?", "opts": ["15", "25", "17", "10"], "correct": 2}, {"topic": "Sustainability & Mission LiFE", "q": "In which year was Mission LiFE introduced?", "opts": ["2021", "2020", "2023", "2022"], "correct": 3}, {"topic": "Sustainability & Mission LiFE", "q": "September 16 is commemorated to encourage the preservation of the ozone layer, and is termed as ___.", "opts": ["Green Consumers' Day", "International Earth Day", "World Environment Day", "International Day for the Preservation of the Ozone Layer"], "correct": 3}, {"topic": "Sustainability & Mission LiFE", "q": "Which Indian Ministry is responsible for planning, promotion & overseeing India's environmental and forestry policies?", "opts": ["Ministry of Environment, Forest and Climate Change (MoEFCC)", "Ministry of Earth Sciences (MoES)", "Ministry of Civil Aviation (MoCA)", "Ministry of Housing and Urban Affairs (MoHUA)"], "correct": 0}, {"topic": "Sustainability & Mission LiFE", "q": "When is Earth Day observed?", "opts": ["22 March", "22 April", "22 May", "22 June"], "correct": 1}, {"topic": "Sustainability & Mission LiFE", "q": "Which Indian Prime Minister launched the Swachh Bharat Abhiyan in 2014, which has since become a mass movement for cleanliness?", "opts": ["Shri Narendra Modi", "Shri Manmohan Singh", "Shri Atal Bihari Vajpayee", "Shri Narasimha Rao"], "correct": 0}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Plants that create their own food through photosynthesis fall under which category?", "opts": ["Producers", "Consumers", "Decomposers", "None of the options listed here"], "correct": 0}, {"topic": "Ecosystems, Climate & Food Chains", "q": "In an ecosystem, animals that obtain energy by eating other organisms are called?", "opts": ["Consumers", "Producers", "Decomposers", "None of the options listed here"], "correct": 0}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Biotic factors are living components of an ecosystem. Which of the following falls under the biotic category?", "opts": ["Plants", "Land", "Soil", "Water"], "correct": 0}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Which term is used for a distinct geographical region where plants and animals co-exist naturally, sharing common characteristic features?", "opts": ["Biome", "Ecosystem", "Habitat", "Biodiversity"], "correct": 0}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Oil drips from a car onto a parking lot. Then rain washes the oil into a pond, where fish get sick and die. This is an example of ___.", "opts": ["Adaptation", "Population", "Pollution", "Restoration"], "correct": 2}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Why is biodiversity valuable to humans?", "opts": ["For medicinal purposes", "For agricultural purposes", "For increasing oxygen in the atmosphere", "All the options listed here"], "correct": 3}, {"topic": "Noise, E-Waste & Plastic Pollution", "q": "Noise is measured in ___.", "opts": ["Fahrenheit", "Kilometres", "Decibels", "None of the options listed here"], "correct": 2}, {"topic": "Noise, E-Waste & Plastic Pollution", "q": "Which part of your body is immediately impacted by noise pollution?", "opts": ["Hands", "Legs", "Arms", "Ears"], "correct": 3}, {"topic": "Noise, E-Waste & Plastic Pollution", "q": "Which items fall under the category of electronic waste (e-waste)?", "opts": ["Used batteries", "Non-functional mobile phones", "Non-functional chargers", "All the options listed here"], "correct": 3}, {"topic": "Noise, E-Waste & Plastic Pollution", "q": "Where should one discard e-waste?", "opts": ["Dustbin", "Dump yard", "Sell it to waste collectors", "Deposit in e-waste collection centre"], "correct": 3}, {"topic": "Noise, E-Waste & Plastic Pollution", "q": "The 'Great Pacific Garbage Patch' is majorly related to which environmental issue?", "opts": ["Deforestation", "Coral mining", "Plastic waste", "Nuclear waste"], "correct": 2}, {"topic": "Noise, E-Waste & Plastic Pollution", "q": "How do plastics in the sea impact marine animals?", "opts": ["Entanglement", "Ingestion", "Toxic contamination", "All the options listed here"], "correct": 3}, {"topic": "Green Living, Jobs & Schemes", "q": "Which amongst the following is categorized as a green job?", "opts": ["Banker", "Doctor", "Environment educator", "Lawyer"], "correct": 2}, {"topic": "Green Living, Jobs & Schemes", "q": "Which Indian Prime Minister launched the Swachh Bharat Abhiyan in 2014?", "opts": ["Shri Narendra Modi", "Shri Manmohan Singh", "Shri Atal Bihari Vajpayee", "Shri Narasimha Rao"], "correct": 0}, {"topic": "Green Living, Jobs & Schemes", "q": "Which government scheme encourages companies to manufacture and assemble products in India, and promotes skill development?", "opts": ["Beti Bachao", "Swachh Bharat Mission", "Make in India", "Ayushman Bharat"], "correct": 2}, {"topic": "Green Living, Jobs & Schemes", "q": "Which Indian Ministry is responsible for overseeing India's environmental and forestry policies?", "opts": ["MoEFCC", "Ministry of Earth Sciences", "Ministry of Civil Aviation", "Ministry of Housing and Urban Affairs"], "correct": 0}, {"topic": "Green Living, Jobs & Schemes", "q": "If your friend throws a plastic wrapper on the ground, what should you do?", "opts": ["Join them in creating more waste", "Stay quiet to avoid fights", "Educate them to throw it in a bin", "None of the options listed here"], "correct": 2}, {"topic": "Green Living, Jobs & Schemes", "q": "What can children do to support green living?", "opts": ["Demand solo car rides", "Use more air conditioners", "Reuse items", "Litter on roads"], "correct": 2}, {"topic": "Earth Science & Adaptations", "q": "Which of the following statements holds true for the Earth's rotation?", "opts": ["It causes day and night", "It only happens once a year", "It makes the sun move across the sky", "It has no effect on us"], "correct": 0}, {"topic": "Earth Science & Adaptations", "q": "The white fur of rabbits helps them blend into the snow to hide from predators. What is this ability called?", "opts": ["Camouflage", "Hibernate", "Aestivate", "Migrate"], "correct": 0}, {"topic": "Earth Science & Adaptations", "q": "Birds travel long distances for food during winter. What is this seasonal movement called?", "opts": ["Hunting", "Migration", "Breeding", "Jumping"], "correct": 1}, {"topic": "Earth Science & Adaptations", "q": "Which of the following statements is true about the water cycle?", "opts": ["It only happens in oceans", "Water changes its form", "Water disappears on land", "None of the options listed here"], "correct": 1}, {"topic": "Earth Science & Adaptations", "q": "What is the most important difference between turtles and tortoises?", "opts": ["Turtles live in water and come ashore mainly to lay eggs", "Tortoises live exclusively on land", "Both A and B are correct", "They refer to the same animal species"], "correct": 2}, {"topic": "Earth Science & Adaptations", "q": "Why do desert plants like cactus have spines instead of leaves?", "opts": ["To absorb more sunlight", "To protect from sandstorms", "To reduce water loss through evaporation", "To trap insects"], "correct": 2}, {"topic": "Biodiversity & Animals", "q": "Coral reef is made of calcium carbonate. Coral is ___?", "opts": ["A fungus", "A plant", "An animal", "A bacterium"], "correct": 2}, {"topic": "Biodiversity & Animals", "q": "Amongst the following, which is the largest land mammal?", "opts": ["Giraffe", "Blue whale", "African elephant", "Hippopotamus"], "correct": 2}, {"topic": "Biodiversity & Animals", "q": "Which of the following does NOT lay eggs, but gives birth to its offspring?", "opts": ["Tuna", "Catfish", "Octopus", "Dolphins"], "correct": 3}, {"topic": "Biodiversity & Animals", "q": "Endangered species are those which ___.", "opts": ["Are at the risk of extinction", "Are dangerous and can harm you", "Need to be domesticated", "Are not at risk of extinction"], "correct": 0}, {"topic": "Biodiversity & Animals", "q": "Tiger and Cheetah are carnivores. Which of the following is NOT a carnivore?", "opts": ["Wolf", "Leopard", "Hyena", "Deer"], "correct": 3}, {"topic": "Biodiversity & Animals", "q": "Which of the following is an example of a wild animal?", "opts": ["Cow", "Cat", "Lion", "Sheep"], "correct": 2}, {"topic": "Biodiversity & Animals", "q": "The fish of the same species live in groups known as a ___.", "opts": ["School", "Herd", "Pack", "Flock"], "correct": 0}, {"topic": "Biodiversity & Animals", "q": "A dog can get an immediate understanding about its locality through which feature?", "opts": ["Barking", "Sniffing", "Looking", "Wagging"], "correct": 1}, {"topic": "Biodiversity & Animals", "q": "'So many shades of blue from top to tail, with a crown on the head and coins on the tail.' Which bird is mentioned?", "opts": ["Ostrich", "Peacock", "Sparrow", "Crow"], "correct": 1}, {"topic": "Biodiversity & Animals", "q": "The white fur helps rabbits conceal in the snow to hide from predators. What is this ability called?", "opts": ["Camouflage", "Hibernate", "Aestivate", "Migrate"], "correct": 0}, {"topic": "Biodiversity & Animals", "q": "Have you ever seen a turtle or a tortoise? What is/are the most important difference between them?", "opts": ["Turtles live in water & come ashore mainly to lay eggs", "Tortoises live exclusively on land", "Both A and B are correct", "They refer to the same animal species"], "correct": 2}, {"topic": "Waste Management", "q": "Compost is a heap of manure made by decaying organic residues. Which item is included in compost?", "opts": ["Rubber", "Plastic", "Leaves", "Bricks"], "correct": 2}, {"topic": "Waste Management", "q": "Segregation leads to proper waste management. What is the importance of segregation?", "opts": ["It keeps the environment clean and fresh", "It creates toxicity in the surroundings", "It increases environmental pollution", "It continues contamination of water bodies"], "correct": 0}, {"topic": "Waste Management", "q": "Why is it difficult to recycle plastic?", "opts": ["It is very fragile", "It vapourizes quickly", "It contains different types of polymer resins", "It comes in different sizes"], "correct": 2}, {"topic": "Waste Management", "q": "Hazardous waste poses a threat to public health. Which of the following is an example?", "opts": ["Dried leaves", "Glass bottles", "Batteries / Old medicines", "Cardboard boxes"], "correct": 2}, {"topic": "Waste Management", "q": "What do you call processing of a waste product into something useful?", "opts": ["Recycling", "Reusing", "Refusing", "Returning"], "correct": 0}, {"topic": "Waste Management", "q": "Which of the following items should NOT be added to a compost pit?", "opts": ["Vegetable peels", "Tea leaves", "Left-over food", "Electric wires"], "correct": 3}, {"topic": "Waste Management", "q": "What happens when you soak seeds in water?", "opts": ["Shrink", "Swell", "Releases oxygen", "No change is seen"], "correct": 1}, {"topic": "Waste Management", "q": "Mention the correct sequence: (i) Harvesting (ii) Applying organic fertilizers (iii) Sowing seeds (iv) Land preparation.", "opts": ["i-ii-iii-iv", "iv-iii-ii-i", "ii-iv-i-iii", "iii-ii-iv-i"], "correct": 1}, {"topic": "Waste Management", "q": "Edible mushrooms are derived from?", "opts": ["Algae", "Fungi", "Insects", "None of the options listed here"], "correct": 1}, {"topic": "Waste Management", "q": "Plastic waste has increased near parks and rivers. What can you do to help reduce it?", "opts": ["Throw plastic bottles anywhere carelessly", "Reuse plastic containers", "Use more plastic bags", "Burn all the plastic materials"], "correct": 1}, {"topic": "Waste Management", "q": "Pick the odd one out from the list of waste materials mentioned below.", "opts": ["Plastic bottles", "Paper cups", "Onion peels", "Aluminium foil"], "correct": 2}, {"topic": "Waste Management", "q": "What is waste generated in hospitals called?", "opts": ["Bio-medical waste", "Pharma-medical waste", "Veterinary-medical waste", "Hospital-medical waste"], "correct": 0}, {"topic": "Waste Management", "q": "Which type of bag is general waste put into?", "opts": ["Containers lined with black bags", "Containers lined with clear/transparent bags", "No bags are required", "Containers lined with yellow bags"], "correct": 0}, {"topic": "Waste Management", "q": "While cleaning your refrigerator you found some rotten apples. Where should you dispose these?", "opts": ["Dustbin", "Pack in a plastic bag and throw in the park", "Compost pits", "None of the options listed here"], "correct": 2}, {"topic": "Waste Management", "q": "Composting helps in reducing which type of waste?", "opts": ["Plastic waste", "Kitchen waste", "Noise pollution", "Air pollution"], "correct": 1}, {"topic": "Waste Management", "q": "Which amongst the following items takes the longest time to decompose?", "opts": ["Banana peel", "Cotton cloth", "Glass bottle", "Paper"], "correct": 2}, {"topic": "Waste Management", "q": "Which of the following can easily decompose in the soil?", "opts": ["Plastic ware", "Glass bottles", "Metal rings", "Tree leaves"], "correct": 3}, {"topic": "Energy", "q": "Which type of energy is most commonly used for electricity generation worldwide?", "opts": ["Fossil fuels", "Solar energy", "Hydroelectric energy", "Wind energy"], "correct": 0}, {"topic": "Energy", "q": "Which of the following are benefits of practising energy conservation?", "opts": ["To reduce electricity bills", "To reduce greenhouse gas emissions", "To support use of star-rated appliances", "All of the above options"], "correct": 3}, {"topic": "Energy", "q": "Which of the following appliances typically uses maximum energy in a home?", "opts": ["Refrigerator", "Television", "Washing machine", "Air conditioner"], "correct": 3}, {"topic": "Energy", "q": "What distinguishes energy conservation from energy efficiency?", "opts": ["Conservation = using less of a service; Efficiency = same service, less energy", "Conservation = producing energy from renewable sources", "They are interchangeable terms", "None of the options listed here"], "correct": 0}, {"topic": "Energy", "q": "An important energy efficiency measure is replacing all incandescent bulbs in your home with CFL or ___.", "opts": ["LED light bulbs", "CFC", "Photovoltaic cells", "None of the options listed here"], "correct": 0}, {"topic": "Energy", "q": "Akshay Urja Diwas is an awareness campaign about renewable energy in India. When is it observed?", "opts": ["20 August", "19 August", "20 September", "17 August"], "correct": 0}, {"topic": "Energy", "q": "In 2021, which country was stated as the largest producer of 'clean' energy, where 99% comes from renewables?", "opts": ["Denmark", "Norway", "Germany", "China"], "correct": 3}, {"topic": "Energy", "q": "Which of the following is NOT an example of green transport?", "opts": ["CNG vehicles", "Vehicles running on petrol/diesel", "Personal bicycles", "Electric vehicles"], "correct": 1}, {"topic": "Energy", "q": "The headquarters of the International Solar Alliance (ISA) is located in which Indian state?", "opts": ["Goa", "Haryana", "Tamil Nadu", "Maharashtra"], "correct": 1}, {"topic": "Energy", "q": "Which energy is used to generate electricity through hot springs and steam from inside the Earth?", "opts": ["Wind energy", "Hydropower energy", "Solar energy", "Geothermal energy"], "correct": 3}, {"topic": "Energy", "q": "Choose the correct statement: (i) India is 1st in installed renewable capacity (ii) India enhanced its target to install 450 GW renewable capacity by 2030.", "opts": ["Only i)", "Only ii)", "Both i) and ii)", "None of the options listed here"], "correct": 1}, {"topic": "Energy", "q": "How long will it take for the sun to produce one year's worth of energy consumption on Earth?", "opts": ["60 minutes", "60 hours", "60 days", "60 weeks"], "correct": 0}, {"topic": "Energy", "q": "Which of the following is the most environment-friendly source to generate electricity in urban cities?", "opts": ["Solar energy", "Fossil fuels", "Nuclear power", "Coal deposits"], "correct": 0}, {"topic": "Energy", "q": "Limited sources of energy cannot be renewed. Which of the following energy sources is unlimited?", "opts": ["Coal", "Oil", "Sunlight", "Natural gas"], "correct": 2}, {"topic": "Energy", "q": "Turning off lights when not in use is a step towards ___.", "opts": ["Energy conservation", "Energy efficiency", "Energy transition", "None of the options listed here"], "correct": 0}, {"topic": "Air Pollution", "q": "___ is used to gauge air quality, similarly to a thermometer, with a range of 0 to 500 degrees.", "opts": ["Air Pollution Index", "Pollution Standards Index", "Air Quality Index", "Environmental Quality Index"], "correct": 2}, {"topic": "Air Pollution", "q": "Major constituents of acid rain are ___.", "opts": ["Carbon dioxide and carbon monoxide", "Sulphur oxides and carbon oxides", "Nitrogen oxides and carbon oxides", "Nitrogen oxides and sulphur dioxides"], "correct": 3}, {"topic": "Air Pollution", "q": "According to CPCB data, which was the most polluted state in India in 2023?", "opts": ["Maharashtra", "West Bengal", "Delhi", "Karnataka"], "correct": 2}, {"topic": "Air Pollution", "q": "When air is contaminated by unwanted substances harmful to living and non-living things, it is called air pollution. True or False?", "opts": ["True", "False"], "correct": 0}, {"topic": "Air Pollution", "q": "Which of the following measures can be taken to reduce indoor air pollution?", "opts": ["Using a chimney or exhaust fan while cooking", "Regularly cleaning the house and furnishings", "Using natural cleaners instead of chemical cleaners", "All the options listed above"], "correct": 3}, {"topic": "Air Pollution", "q": "Which of the following is NOT a measure to reduce air pollution in India?", "opts": ["Turn off the vehicles at red lights", "Plant more trees", "Adopt public transport", "Continue unabated construction projects"], "correct": 3}, {"topic": "Air Pollution", "q": "What is the air quality of an Indian rural household where a traditional indoor chullah generating lots of smoke is used for cooking?", "opts": ["Bad", "Good", "Satisfactory", "None of the options listed here"], "correct": 0}, {"topic": "Air Pollution", "q": "What happens when we breathe polluted air?", "opts": ["It causes eye irritation", "It causes coughing and wheezing", "It causes breathing distress", "All the options listed above"], "correct": 3}, {"topic": "Air Pollution", "q": "What is/are the source/s of air pollution?", "opts": ["Factory emissions", "Road transport", "Burning of waste", "All the options listed above"], "correct": 3}, {"topic": "Air Pollution", "q": "What is the benefit of breathing clean air?", "opts": ["Improves health", "Increases stamina of lungs", "Improves overall ambient environment", "All the options listed above"], "correct": 3}, {"topic": "Air Pollution", "q": "I am a place on the Earth that has the cleanest air. Who am I?", "opts": ["City", "Factory", "Forest", "Roadside"], "correct": 2}, {"topic": "Air Pollution", "q": "Your friend has asthma and often wheezes when playing outdoors. What is the most obvious reason for his health condition?", "opts": ["Exposure to dust", "Presence of pollutants in the air", "Increased exposure to indoor air pollution", "All the options listed above"], "correct": 3}, {"topic": "Air Pollution", "q": "If I am an environment-friendly individual, which kind of fuel will I use for my vehicle?", "opts": ["CNG", "Petrol", "Diesel", "LPG"], "correct": 0}, {"topic": "Air Pollution", "q": "The addition of toxic and unwanted substances to our environment is known as ___.", "opts": ["Pollution", "Sanitization", "Cleanliness", "Hygiene"], "correct": 0}, {"topic": "Water", "q": "Of all water on the Earth, saltwater makes up 97%, meaning only 3% is freshwater, and only around 1% is readily usable. True or False?", "opts": ["True", "False"], "correct": 0}, {"topic": "Water", "q": "Why is it important to conserve water?", "opts": ["To prevent water shortage", "To increase water bills", "To increase water pollution", "None of the options listed here"], "correct": 0}, {"topic": "Water", "q": "Rivers are a source of drinking water for plants, animals and people nearby. What can be done to keep rivers clean?", "opts": ["Throw garbage in the river", "Keep a check on waste discharged from factories", "Cut down trees along the banks", "Stop the natural flow of water"], "correct": 1}, {"topic": "Water", "q": "Why do we need water?", "opts": ["To keep our bodies healthy", "To water plants", "To cook food", "All the options listed above"], "correct": 3}, {"topic": "Water", "q": "We need water every day to survive. How can we save water at home?", "opts": ["Let the tap water flow while brushing your teeth", "Take long showers", "Fix leaks and turn off the tap when not in use", "Leave the tap running all day"], "correct": 2}, {"topic": "Water", "q": "What will happen if we waste water?", "opts": ["Water will be contaminated", "There will be less water for everyone", "It will rain less", "Water will be in abundance"], "correct": 1}, {"topic": "Water", "q": "What happens when you turn off taps when not in use?", "opts": ["Water is conserved", "No impact", "Water is wasted", "None of the options listed here"], "correct": 0}, {"topic": "Water", "q": "Springs are an example of ___.", "opts": ["Rainwater", "Surface water", "Groundwater", "Grey water"], "correct": 2}, {"topic": "Water", "q": "Household sewage is also a water pollutant, containing bacteria, viruses and parasites. Which disease can it cause?", "opts": ["Cholera", "Typhoid", "Gastroenteritis", "All the options listed here"], "correct": 3}, {"topic": "Water", "q": "Water vapour is which state of water?", "opts": ["Gaseous", "Liquid", "Solid", "None of the options listed here"], "correct": 0}, {"topic": "Water", "q": "What is the main purpose of observing World Water Day?", "opts": ["To celebrate the importance of rivers", "To remind people to conserve water", "To encourage people not to pollute water", "All the options listed above"], "correct": 3}, {"topic": "Forests & Wildlife", "q": "Name the tree planting festival celebrated by the Ministry of Environment, Forest and Climate Change every July.", "opts": ["Nirmal Bharat Abhiyan", "Make in India", "Van Mahotsav", "Skill India"], "correct": 2}, {"topic": "Forests & Wildlife", "q": "India's first national park, located in Uttarakhand in northern India, is called?", "opts": ["Ranthambore National Park", "Kanha National Park", "Manas National Park", "Jim Corbett National Park"], "correct": 3}, {"topic": "Forests & Wildlife", "q": "Which forest is characterized by cone-shaped trees?", "opts": ["Coniferous forest", "Thorn forest", "Tropical evergreen forest", "Tropical deciduous forest"], "correct": 0}, {"topic": "Forests & Wildlife", "q": "Wildlife conservation helps protect animals, plants and communities. Which of the following helps in conservation?", "opts": ["Constructing roads for jungle safari", "Planting trees", "Increasing tourism", "Building dams"], "correct": 1}, {"topic": "Forests & Wildlife", "q": "For the Kalbeliyas tribe of Rajasthan, ___ play an important role in their lives.", "opts": ["Elephants", "Lions", "Snakes", "Tiger"], "correct": 2}, {"topic": "Forests & Wildlife", "q": "Name the chemical present in leaves that gives them their green colour and helps with photosynthesis.", "opts": ["Anthocyanin", "Carotenoid", "Chlorophyll", "Antacidin"], "correct": 2}, {"topic": "Forests & Wildlife", "q": "This tree grows mainly in the desert, its bark is used for making medicines, and desert animals eat its leaves.", "opts": ["Khejri tree", "Neem tree", "Sandalwood tree", "Banyan tree"], "correct": 0}, {"topic": "Forests & Wildlife", "q": "A root bridge is a type of bridge formed by roots of plants, most commonly seen in the northeastern part of India. Name the state.", "opts": ["Meghalaya", "Assam", "Arunachal Pradesh", "Tripura"], "correct": 0}, {"topic": "Forests & Wildlife", "q": "When do we celebrate World Environment Day?", "opts": ["22 April", "05 June", "23 March", "14 December"], "correct": 1}, {"topic": "Forests & Wildlife", "q": "Who is the current Minister of Environment, Forest and Climate Change, Government of India (October 2024)?", "opts": ["Shri Ashwini Kumar Choubey", "Shri Bhupender Yadav", "Shri (Dr) Harsh Vardhan", "Shri Ashwini Vaishnaw"], "correct": 1}, {"topic": "Forests & Wildlife", "q": "Which type of irrigation helps in saving the maximum amount of water?", "opts": ["Manual irrigation", "Sprinkler irrigation", "Surface irrigation", "Drip irrigation"], "correct": 3}, {"topic": "Forests & Wildlife", "q": "People who have lived in a forest (in India) for at least 25 years have a right over the forestland and crops. Under which Act?", "opts": ["Indian Forest Act, 1927", "National Forest Act, 1988", "Forest Rights Act, 2016", "Right to Forest Act, 2007"], "correct": 2}, {"topic": "Forests & Wildlife", "q": "Pick an example of a natural contributor to air pollution.", "opts": ["Burning of fossil fuels", "Vehicular emission", "Volcanic eruption", "Burning of crackers"], "correct": 2}, {"topic": "Forests & Wildlife", "q": "Trees help in reducing pollution. Trees are rightly known as the ___ of the planet.", "opts": ["Limbs", "Heart", "Lungs", "Brain"], "correct": 2}, {"topic": "Forests & Wildlife", "q": "Which of the following is a benefit of planting more trees?", "opts": ["Increases traffic", "Reduces rainfall", "Improves air quality", "Causes deforestation"], "correct": 2}, {"topic": "Forests & Wildlife", "q": "A career in forest conservation requires knowledge about?", "opts": ["Forestry-related government schemes", "Dynamics of forest ecosystems", "Taxonomy of flora and fauna", "All the options listed here"], "correct": 3}, {"topic": "Sustainability & Mission LiFE", "q": "The Sustainable Development Goals (SDGs) are a set of how many interconnected goals?", "opts": ["15", "25", "17", "10"], "correct": 2}, {"topic": "Sustainability & Mission LiFE", "q": "Mission LiFE's aim is to nudge people towards a lifestyle in sync with nature. Those who practice it are recognized as ___.", "opts": ["Pro Planet People", "Patience Persistence Perseverance", "People Planet Profit", "People Process Product"], "correct": 0}, {"topic": "Sustainability & Mission LiFE", "q": "Which of the following is true about Mission LiFE? (i) launched jointly by Health & Environment Ministries (ii) at least 50% of villages/urban local bodies aimed to become environment-friendly by 2028.", "opts": ["Only i)", "Only ii)", "Both i) and ii)", "None of the options listed here"], "correct": 1}, {"topic": "Sustainability & Mission LiFE", "q": "Mission LiFE envisions three significant changes in how we think about sustainability. Which is NOT one of them?", "opts": ["Change in Quantity", "Change in Supply", "Change in Demand", "Change in Policy"], "correct": 1}, {"topic": "Sustainability & Mission LiFE", "q": "What is the full form of SDG?", "opts": ["Sustainable Development Goal", "Sustainable Development Game", "Sustainability Development Goals", "Sustainability Development Game"], "correct": 0}, {"topic": "Sustainability & Mission LiFE", "q": "Which of the following appropriately defines sustainable development?", "opts": ["Taking care of only ourselves", "Taking care of future generations", "Well-being of family", "Taking care of ourselves and our future generations"], "correct": 3}, {"topic": "Sustainability & Mission LiFE", "q": "Which Government of India mission has a target to motivate at least 1 billion people, including Indians, to protect the environment between 2022 and 2028?", "opts": ["Green India Mission", "National Mission for Sustainable Habitat", "Mission LiFE", "Mission Indradhanush"], "correct": 2}, {"topic": "Sustainability & Mission LiFE", "q": "Mission LiFE helps individuals to adopt ___.", "opts": ["Sustainable lifestyles", "Consumerism", "Hygienic practices", "None of the options listed here"], "correct": 0}, {"topic": "Sustainability & Mission LiFE", "q": "Which of the following is NOT a category enlisted in Mission LiFE?", "opts": ["Energy saving", "Pollution reduction", "Water saving", "Waste reduction"], "correct": 1}, {"topic": "Sustainability & Mission LiFE", "q": "Mission LiFE has a comprehensive list of 75 individual actions. Which of the following is the INCORRECT action?", "opts": ["Use plastic bags for shopping instead of cloth bags", "Prepare organic manure from cow dung", "Plant trees to reduce pollution impact", "Switch off vehicle engines at red lights"], "correct": 0}, {"topic": "Sustainability & Mission LiFE", "q": "The Bhopal gas tragedy of 1984 took place because of a reaction between methyl isocyanate and ___.", "opts": ["Water", "DDT", "Ammonia", "CO2"], "correct": 0}, {"topic": "Sustainability & Mission LiFE", "q": "What is the full form of LED?", "opts": ["Light Emitting Device", "Light Ejecting Device", "Light Emitting Diode", "Lower Emitting Diode"], "correct": 2}, {"topic": "Sustainability & Mission LiFE", "q": "The United Nations Sustainable Development Summit 2015 set up development goals known as?", "opts": ["Agenda 2020", "Agenda 2040", "Agenda 2030", "Agenda 2050"], "correct": 2}, {"topic": "Sustainability & Mission LiFE", "q": "Why is Sustainable Development necessary?", "opts": ["It helps promote and conserve the environment", "It makes people aware of effective use of natural resources", "It aims at achieving economic and social development", "All the options listed above"], "correct": 3}, {"topic": "Sustainability & Mission LiFE", "q": "What is the exact term used for global goals prescribed by the United Nations?", "opts": ["Sustainable Development Goals (SDGs)", "Millennium Development Goals (MDGs)", "National Clean Air Programme (NCAP)", "Green India Mission (GIM)"], "correct": 0}, {"topic": "Sustainability & Mission LiFE", "q": "Mission LiFE (Lifestyle for Environment) is an initiative to protect the environment. How many LiFE themes are there?", "opts": ["7", "8", "3", "5"], "correct": 0}, {"topic": "Sustainability & Mission LiFE", "q": "Who launched Mission LiFE in India?", "opts": ["President of India", "Chief Minister of Delhi", "Prime Minister of India", "Chief Minister of Maharashtra"], "correct": 2}, {"topic": "Sustainability & Mission LiFE", "q": "Mission LiFE is a public movement to mobilize individuals to become ___.", "opts": ["Pro Planet People", "Consumers", "Investors", "None of the options listed here"], "correct": 0}, {"topic": "Sustainability & Mission LiFE", "q": "Which initiative is launched by the Indian government to promote cleanliness?", "opts": ["Swachh Bharat Abhiyan", "Make in India", "Digital India", "National Solar Mission"], "correct": 0}, {"topic": "Sustainability & Mission LiFE", "q": "Which day is observed on April 22 to encourage environmental conservation?", "opts": ["International Earth Day", "World Environment Day", "Green Day", "Eco Day"], "correct": 0}, {"topic": "Ecosystems, Climate & Food Chains", "q": "___ comprises all life on planet Earth.", "opts": ["Hydrosphere", "Lithosphere", "Atmosphere", "Biosphere"], "correct": 3}, {"topic": "Ecosystems, Climate & Food Chains", "q": "The Earth has three major interconnected physical components. What is the gaseous layer surrounding the planet called?", "opts": ["Atmosphere", "Hydrosphere", "Lithosphere", "None of the options listed here"], "correct": 0}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Oil drips from a car onto a parking lot. Rain washes the oil into a pond, where fish get sick and die. This is an example of ___.", "opts": ["Adaptation", "Population", "Pollution", "Restoration"], "correct": 2}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Any substance which is harmful or has a negative effect on environment is called a pollutant. Which of the following is NOT a pollutant?", "opts": ["Plastics thrown in a river", "Chirping of birds", "Loud music", "Oil spill"], "correct": 1}, {"topic": "Ecosystems, Climate & Food Chains", "q": "An ecosystem is a place where plants, animals & other beings show high co-dependence. What is the significance of bees in the ecosystem?", "opts": ["They produce honey", "They help in pollination", "They provide wax", "All the options listed above"], "correct": 3}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Which term is used for a distinct geographical region where plants and animals co-exist naturally, sharing common features?", "opts": ["Biome", "Ecosystem", "Habitat", "Biodiversity"], "correct": 0}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Name the most abundant gas in the Earth's atmosphere, which makes up about 78% of air.", "opts": ["Oxygen", "Carbon", "Nitrogen", "Hydrogen"], "correct": 2}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Respiration is an important process for life. What do humans breathe in during this process?", "opts": ["Oxygen", "Carbon dioxide", "Nitrogen", "Ozone"], "correct": 0}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Oxygen enters the human body during inhalation. Which waste product travels from the cells to the lungs and is released?", "opts": ["Carbon dioxide", "Nitrogen", "Ozone", "Oxygen"], "correct": 0}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Which of the following shows the correct sequence of digestion in humans?", "opts": ["Stomach → Mouth → Intestine", "Mouth → Stomach → Intestine", "Mouth → Intestine → Stomach", "Intestine → Mouth → Stomach"], "correct": 1}, {"topic": "Ecosystems, Climate & Food Chains", "q": "The greenhouse effect traps heat to keep Earth at a suitable temperature. Which of the following is NOT a greenhouse gas?", "opts": ["Water vapour", "Carbon dioxide", "Methane", "Oxygen"], "correct": 3}, {"topic": "Ecosystems, Climate & Food Chains", "q": "The world has been warming up quickly over the past 100 years. Which term is used for this long-term shift in temperature and weather?", "opts": ["Climate change", "Acid rain", "Smog", "Pollution"], "correct": 0}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Which of the following effects are triggered by climate change?", "opts": ["Intense heatwaves and heavy rainfall", "Rapid melting of glaciers and ice sheets", "Huge declines in Arctic sea-ice", "All the options listed here"], "correct": 3}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Deforestation is the clearing of forest areas by humans. How does cutting trees impact climate change?", "opts": ["Reduces global warming", "No effect", "Worsens global warming", "Makes the air cleaner"], "correct": 2}, {"topic": "Ecosystems, Climate & Food Chains", "q": "How does climate change impact water-related issues?", "opts": ["Leads to water crisis", "Leads to flooding", "Leads to water-borne diseases", "All the options listed above"], "correct": 3}, {"topic": "Ecosystems, Climate & Food Chains", "q": "Climate change is a long-term shift in weather patterns. How does it directly impact lifestyles of people in high-altitude regions?", "opts": ["Increased availability of water", "There is less snowfall and winters are warmer", "There is expansion of forests", "Increased intensity of dust storms"], "correct": 1}, {"topic": "Noise, E-Waste & Plastic Pollution", "q": "Annoying levels of noise cause noise pollution. Which of the following statements is true?", "opts": ["It is harmful for ears", "It upsets animals", "It puts stress on the health of ailing senior citizens", "All the options listed here"], "correct": 3}, {"topic": "Noise, E-Waste & Plastic Pollution", "q": "What is the effect of noise pollution on humans?", "opts": ["Improves hearing", "No effect", "Causes hearing ailment", "Decreases stress"], "correct": 2}, {"topic": "Noise, E-Waste & Plastic Pollution", "q": "Plastic pollution has a harmful impact on marine life. How do plastics in the sea impact animals?", "opts": ["Entanglement", "Ingestion", "Toxic contamination", "All the options listed here"], "correct": 3}, {"topic": "Noise, E-Waste & Plastic Pollution", "q": "Which of the following actions can help in reducing plastic pollution?", "opts": ["Use cloth bags during shopping", "Refuse use of mineral water in plastic bottles", "Carry your own steel cup for beverages", "All the options listed here"], "correct": 3}, {"topic": "Green Living, Jobs & Schemes", "q": "Which of the following experts will help in water conservation?", "opts": ["Borewell drilling experts", "Rainwater harvesting experts", "Electricians repairing geysers", "None of the options listed here"], "correct": 1}, {"topic": "Green Living, Jobs & Schemes", "q": "What are the features of Green Economy?", "opts": ["Well-being of citizens", "Reduced environmental risks", "Resource efficiency", "All the options listed here"], "correct": 3}, {"topic": "Green Living, Jobs & Schemes", "q": "Why is wasting food a problem for the planet?", "opts": ["It results in food insecurity", "It results in wastage of resources", "It leads to increased carbon footprint", "All the options listed here"], "correct": 3}, {"topic": "Green Living, Jobs & Schemes", "q": "Benefits of walking or cycling for short distance travel include?", "opts": ["Reduction in pollution", "Traffic management", "Staying physically fit", "All the options listed here"], "correct": 3}, {"topic": "Green Living, Jobs & Schemes", "q": "How can children influence their families to go green?", "opts": ["By taking car rides for shorter distances", "By assisting in waste segregation at home", "By taking long duration showers", "By increasing their screen time"], "correct": 1}, {"topic": "Green Living, Jobs & Schemes", "q": "Natural resources are limited; their rapid consumption leads to environmental problems. Which strategy supports conservation?", "opts": ["Promoting single-use plastics", "Encouraging overuse of fossil fuels", "Recycling and reuse of materials", "Expanding open mining without controls"], "correct": 2}, {"topic": "Green Living, Jobs & Schemes", "q": "Awareness and education about climate change empower people to act. What is the role of environmental education?", "opts": ["Increase pollution", "Spread plastic use", "Knowledge enhancement", "Encourage deforestation"], "correct": 2}, {"topic": "Green Living, Jobs & Schemes", "q": "What are the benefits of maintaining community green spaces?", "opts": ["They support playing, relaxing and meeting others", "People come together to clean and decorate them", "They offer shared experiences and beautiful memories", "All the options listed here"], "correct": 3}, {"topic": "Green Living, Jobs & Schemes", "q": "Which value is demonstrated by switching from using personal cars to public transport?", "opts": ["Convenience", "Environmental consciousness", "Luxury", "Ventilation"], "correct": 1}, {"topic": "Green Living, Jobs & Schemes", "q": "Which of the following practices best describes as eco-friendly?", "opts": ["Reusing metal containers", "Overconsumption of goods", "Using plastic bags", "Excessive AC use"], "correct": 0}, {"topic": "Green Living, Jobs & Schemes", "q": "Waste reduction and recycling minimize landfill waste. As per the hierarchy of waste management, the 3Rs stand for?", "opts": ["Reduce, reuse, and recycle", "Renew, return, and recycle", "Redo, return, and refuse", "Return, reuse, and renew"], "correct": 0}, {"topic": "Earth Science & Adaptations", "q": "Which of the following statements is/are true? (i) The Earth spins on its axis, causing day and night (ii) different parts face the sun, making it look like sunrise/sunset (iii) The sun itself isn't moving.", "opts": ["Only i)", "Only ii)", "Only iii)", "All the options listed here"], "correct": 3}, {"topic": "Earth Science & Adaptations", "q": "Which outdoor educational activity guides students to explore plants & animals around them?", "opts": ["Nature trails", "Forest fires", "Classroom seminars", "Laboratory experiments"], "correct": 0}, {"topic": "Earth Science & Adaptations", "q": "Which of the following rules should be followed while you are in a forest?", "opts": ["Do not leave any waste behind", "Minimize noise as loud sounds scare wildlife", "Avoid disturbing vegetation, plucking flowers or damaging plants", "All the options listed here"], "correct": 3}, {"topic": "Earth Science & Adaptations", "q": "A desert is a dry place with very little rainfall. Which of the following are desert plants?", "opts": ["Cactus", "Pine tree", "Mango tree", "Peepal tree"], "correct": 0}, {"topic": "Earth Science & Adaptations", "q": "Which of the following statements holds true for river water dams?", "opts": ["A dam is like a giant wall that blocks flow of a river", "A dam stores water in a reservoir", "Building dams disturbs life of people near the riverbank", "All the options listed here"], "correct": 3}, {"topic": "Earth Science & Adaptations", "q": "Portuguese traders introduced a flower to India in the early 16th century, revered for its vibrant colour and used in ceremonies. Name it.", "opts": ["Marigold", "Tulip", "Lily", "Dahlia"], "correct": 0}, {"topic": "Earth Science & Adaptations", "q": "Which of the following plants is most suitable for a kitchen garden?", "opts": ["Mango tree", "Rose bush", "Tomato plant", "Coconut tree"], "correct": 2}, {"topic": "Earth Science & Adaptations", "q": "Why is the sky blue during the day but appears orange during sunset?", "opts": ["The sun changes colour", "There is more moisture in the air", "Scattering of sunlight occurs differently based on angle", "Clouds change shape"], "correct": 2}, {"topic": "Earth Science & Adaptations", "q": "A magnet attracts which of the following metals?", "opts": ["Aluminium", "Iron", "Gold", "Brass"], "correct": 1}, {"topic": "Earth Science & Adaptations", "q": "Roots and shoots are the two main parts of a plant. Which part is primarily underground, anchors the tree, and absorbs water & nutrients?", "opts": ["Branches", "Trunk", "Roots", "Shoots"], "correct": 2}, {"topic": "Earth Science & Adaptations", "q": "Which part of a plant absorbs water and nutrients from the soil?", "opts": ["Stem", "Leaf", "Root", "Flower"], "correct": 2}, {"topic": "Earth Science & Adaptations", "q": "___ provides support and helps transport nutrients and water in a plant.", "opts": ["Leaf", "Root", "Fruit", "Stem"], "correct": 3}, {"topic": "Earth Science & Adaptations", "q": "I am the first stage in the life of a plant. I am small and need soil and water to grow. Who am I?", "opts": ["Seed", "Stem", "Fruit", "Root"], "correct": 0}, {"topic": "Earth Science & Adaptations", "q": "Which factor determines whether an object will float or sink in water?", "opts": ["Weight", "Colour", "Size", "Shape"], "correct": 0}, {"topic": "Earth Science & Adaptations", "q": "What happens to an aluminium foil when it is spread out and placed in water?", "opts": ["Sinks", "Floats", "Dissolves", "Breaks"], "correct": 1}, {"topic": "Earth Science & Adaptations", "q": "What happens to an iron nail when placed in water?", "opts": ["Floats", "Sinks", "Dissolves", "Changes colour"], "correct": 1}, {"topic": "Earth Science & Adaptations", "q": "What is the disadvantage of burning damp wood for cooking?", "opts": ["Less smoke", "Increases efficiency", "More smoke", "No health impact"], "correct": 2}, {"topic": "Earth Science & Adaptations", "q": "Some substances do not degrade and remain in the environment for years. What are these substances known as?", "opts": ["Biodegradable", "Non-biodegradable", "Perishable", "Exhaustible"], "correct": 1}, {"topic": "Earth Science & Adaptations", "q": "Magh Bihu is widely famous in Assam and marks the end of the harvest season. In which month is it celebrated?", "opts": ["January", "February", "March", "April"], "correct": 0}, {"topic": "Earth Science & Adaptations", "q": "This island is the world's largest and is located to the north of the Atlantic Ocean. Name it.", "opts": ["Greenland", "New Guinea", "Madagascar", "Baffin"], "correct": 0}, {"topic": "Earth Science & Adaptations", "q": "Located between the Pacific and Atlantic Oceans, this continent is world's largest producer of wheat. Name the continent.", "opts": ["Asia", "Africa", "South America", "North America"], "correct": 3}, {"topic": "Earth Science & Adaptations", "q": "We experience four seasons namely summer, winter, autumn. What is the fourth one?", "opts": ["Fall", "Spring", "Monsoon", "None of the options listed here"], "correct": 1}, {"topic": "Earth Science & Adaptations", "q": "In 2023, who is the Minister of Environment, Forest and Climate Change, GoI, and Climate Change?", "opts": ["Shri Ashwini Kumar Choubey", "Shri Bhupender Yadav", "Shri (Dr) Harsh Vardhan", "Shri Ashwini Vaishnaw"], "correct": 1}, {"topic": "Earth Science & Adaptations", "q": "What type of farming is practised in Mizoram?", "opts": ["Terrace farming", "Subsistence farming", "Jhoom farming", "Intensive subsistence farming"], "correct": 2}, {"topic": "Earth Science & Adaptations", "q": "Name the largest freshwater lake in India.", "opts": ["Dal Lake", "Chilika Lake", "Wular Lake", "Loktak Lake"], "correct": 2}, {"topic": "Earth Science & Adaptations", "q": "While sterilized foods are kept at room temperature for long periods, ___ foods require refrigerated periods.", "opts": ["Preserved", "Boiled", "Pickled", "Pasteurized"], "correct": 3}, {"topic": "Earth Science & Adaptations", "q": "I like to stay in the tank of the car, and I make engines run down the street. I am brown and slick to touch. Guess who am I?", "opts": ["Petrol", "Wood", "Nitrogen", "Water vapour"], "correct": 0}, {"topic": "Earth Science & Adaptations", "q": "Identify one human activity listed below that deteriorates the environment.", "opts": ["Walking home", "Using cloth bags", "Segregating waste", "Dumping garbage"], "correct": 3}, {"topic": "Earth Science & Adaptations", "q": "A moist piece of bread has a chance of developing bread mould if exposed to the outside environment. Bread mould is a fungus that spoils bread. Choose the correct option.", "opts": ["Only i)", "Only ii)", "i) and ii)", "None of the options listed here"], "correct": 2}, {"topic": "Earth Science & Adaptations", "q": "Which of the following statements is true in the case of sustainable agriculture?", "opts": ["We can sow many seeds together in one hole", "Distance between seeds is not important", "We will have good quantity of food if we sow many seeds together", "Sowing the right number of seeds at the right distance is important for good production"], "correct": 3}, {"topic": "Earth Science & Adaptations", "q": "Plants that fight with other food plants for nutrition, water and space are known as ___.", "opts": ["Fighter plants", "Aliens", "Weeds", "None of the options listed here"], "correct": 2}, {"topic": "Earth Science & Adaptations", "q": "Which of the following is a leafy vegetable?", "opts": ["Banana", "Tomato", "Spinach", "Potato"], "correct": 2}, {"topic": "Earth Science & Adaptations", "q": "Wheat, rice and maize fall in which category?", "opts": ["Pulses", "Cereals", "Oilseeds", "Vegetables"], "correct": 1}];
+
+  // Group by topic
+  const byTopic = {};
+  QUIZ_DATA.forEach(q=>{
+    if(!byTopic[q.topic]) byTopic[q.topic] = [];
+    byTopic[q.topic].push(q);
+  });
+
+  // ---------------- STATE ----------------
+  let session = null; // { topicKey, color, light, questions:[], idx, score, wrongList:[] }
+  const best = {}; // topicKey -> best score string, session-only memory
+
+  const appHeader = document.getElementById('appHeader');
+  const headerSub = document.getElementById('headerSub');
+  const homeScreen = document.getElementById('homeScreen');
+  const quizScreen = document.getElementById('quizScreen');
+  const resultsScreen = document.getElementById('resultsScreen');
+  const topicGrid = document.getElementById('topicGrid');
+
+  function showScreen(el){
+    [homeScreen, quizScreen, resultsScreen].forEach(s=>s.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function setTheme(color, light){
+    document.documentElement.style.setProperty('--topic-color', color);
+    document.documentElement.style.setProperty('--topic-light', light);
+    appHeader.style.background = `linear-gradient(135deg, ${color}, ${shade(color,-18)})`;
+  }
+  function shade(hex, percent){
+    const num = parseInt(hex.replace('#',''),16);
+    let r = (num>>16) + percent, g = ((num>>8)&0x00FF) + percent, b = (num&0x0000FF) + percent;
+    r = Math.min(255,Math.max(0,r)); g = Math.min(255,Math.max(0,g)); b = Math.min(255,Math.max(0,b));
+    return '#' + (0x1000000 + r*0x10000 + g*0x100 + b).toString(16).slice(1);
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function renderHome(){
+    setTheme('#2E7D32', '#C8E6C9');
+    headerSub.textContent = 'Pick a topic and test what you know!';
+    topicGrid.innerHTML = '';
+
+    const mixed = document.createElement('div');
+    mixed.className = 'topic-card mixed-card';
+    mixed.innerHTML = `
+      <div class="tc-top"><span class="tc-emoji">🏆</span><span class="tc-name display">Mixed Challenge — All Topics</span></div>
+      <div class="tc-count">${QUIZ_DATA.length} questions, shuffled</div>
+      <div class="tc-best">${best['__mixed__'] ? 'Best: '+best['__mixed__'] : ''}</div>`;
+    mixed.addEventListener('click', ()=> startQuiz('__mixed__'));
+    topicGrid.appendChild(mixed);
+
+    TOPIC_META.forEach(t=>{
+      const qs = byTopic[t.key] || [];
+      const card = document.createElement('div');
+      card.className = 'topic-card';
+      card.style.setProperty('--card-color', t.color);
+      card.innerHTML = `
+        <div class="tc-top"><span class="tc-emoji">${t.emoji}</span><span class="tc-name display">${t.key}</span></div>
+        <div class="tc-count">${qs.length} questions</div>
+        <div class="tc-best">${best[t.key] ? 'Best: '+best[t.key] : ''}</div>`;
+      card.addEventListener('click', ()=> startQuiz(t.key));
+      topicGrid.appendChild(card);
+    });
+  }
+
+  function startQuiz(topicKey){
+    let meta, questions;
+    if(topicKey === '__mixed__'){
+      meta = { key:'__mixed__', color:'#E1665B', light:'#FFD9D4' };
+      questions = shuffle(QUIZ_DATA);
+    } else {
+      meta = TOPIC_META.find(t=>t.key===topicKey);
+      questions = shuffle(byTopic[topicKey]);
+    }
+    session = { meta, questions, idx:0, score:0, wrongList:[] };
+    setTheme(meta.color, meta.light);
+    headerSub.textContent = topicKey === '__mixed__' ? 'Mixed Challenge' : topicKey;
+    showScreen(quizScreen);
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    const { meta, questions, idx } = session;
+    const q = questions[idx];
+    document.getElementById('quizProgressLabel').textContent = `Question ${idx+1} of ${questions.length}`;
+    document.getElementById('quizScoreLabel').textContent = `Score: ${session.score}`;
+    document.getElementById('progressFill').style.width = (idx/questions.length*100)+'%';
+    document.getElementById('qText').textContent = q.q;
+    document.getElementById('qFeedback').textContent = '';
+    document.getElementById('qFeedback').className = 'q-feedback';
+    document.getElementById('nextBtnWrap').innerHTML = '';
+
+    const optsWrap = document.getElementById('qOpts');
+    optsWrap.innerHTML = '';
+    const letters = ['A','B','C','D'];
+    q.opts.forEach((opt, i)=>{
+      const btn = document.createElement('button');
+      btn.className = 'q-opt';
+      btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+      btn.addEventListener('click', ()=> answerQuestion(i, btn));
+      optsWrap.appendChild(btn);
+    });
+  }
+
+  function answerQuestion(i, btn){
+    const { questions, idx } = session;
+    const q = questions[idx];
+    const allOpts = Array.from(document.querySelectorAll('.q-opt'));
+    allOpts.forEach(b=>b.classList.add('locked'));
+
+    const feedback = document.getElementById('qFeedback');
+    if(i === q.correct){
+      btn.classList.add('correct');
+      feedback.textContent = '✓ Correct! Great job!';
+      feedback.className = 'q-feedback ok';
+      session.score++;
+    } else {
+      btn.classList.add('wrong');
+      allOpts[q.correct].classList.add('correct');
+      feedback.textContent = '✗ Not quite — the correct answer is highlighted.';
+      feedback.className = 'q-feedback bad';
+      session.wrongList.push({ q: q.q, correct: q.opts[q.correct], yours: q.opts[i] });
+    }
+    document.getElementById('quizScoreLabel').textContent = `Score: ${session.score}`;
+
+    const wrap = document.getElementById('nextBtnWrap');
+    const btnEl = document.createElement('button');
+    btnEl.className = 'nextBtn display';
+    btnEl.textContent = (idx === questions.length-1) ? 'See Results →' : 'Next Question →';
+    btnEl.addEventListener('click', advanceQuestion);
+    wrap.appendChild(btnEl);
+  }
+
+  function advanceQuestion(){
+    session.idx++;
+    if(session.idx >= session.questions.length){
+      finishQuiz();
+    } else {
+      renderQuestion();
+    }
+  }
+
+  function finishQuiz(){
+    const { meta, questions, score, wrongList } = session;
+    const total = questions.length;
+    const pct = Math.round((score/total)*100);
+    const label = meta.key === '__mixed__' ? '__mixed__' : meta.key;
+    const scoreStr = `${score}/${total}`;
+    if(!best[label] || score > parseInt(best[label])) best[label] = scoreStr;
+
+    setTheme(meta.color, meta.light);
+    document.getElementById('scoreNum').textContent = score;
+    document.getElementById('scoreTotal').textContent = 'out of ' + total;
+
+    let msg, sub;
+    if(pct === 100){ msg = '🏆 Perfect Score!'; sub = "You're a true Green Olympiad champion!"; }
+    else if(pct >= 80){ msg = '🌟 Excellent Work!'; sub = "You really know your stuff — almost perfect!"; }
+    else if(pct >= 60){ msg = '👍 Good Job!'; sub = "Solid effort! A little more practice and you'll be an expert."; }
+    else { msg = '🌱 Keep Practicing!'; sub = "Review the answers below, then try again — you'll improve fast!"; }
+    document.getElementById('resultMsg').textContent = msg;
+    document.getElementById('resultSub').textContent = sub;
+
+    const reviewWrap = document.getElementById('reviewList');
+    if(wrongList.length === 0){
+      reviewWrap.innerHTML = '';
+    } else {
+      reviewWrap.innerHTML = '<h3 class="display">Questions to Review</h3>' +
+        wrongList.map(w => `
+          <div class="review-item">
+            <div class="ri-q">${w.q}</div>
+            <div class="ri-your">Your answer: ${w.yours}</div>
+            <div class="ri-a">Correct answer: ${w.correct}</div>
+          </div>`).join('');
+    }
+    showScreen(resultsScreen);
+  }
+
+  document.getElementById('backHomeBtn').addEventListener('click', ()=>{
+    session = null;
+    showScreen(homeScreen);
+    renderHome();
+  });
+  document.getElementById('homeBtn').addEventListener('click', ()=>{
+    session = null;
+    showScreen(homeScreen);
+    renderHome();
+  });
+  document.getElementById('retryBtn').addEventListener('click', ()=>{
+    const key = session.meta.key;
+    startQuiz(key);
+  });
+
+  renderHome();
+})();
+</script>
+</body>
+</html>
