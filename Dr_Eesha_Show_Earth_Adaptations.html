@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Dr. Eesha Show — Biodiversity & Animals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --kraft: #F1E4C6;
+    --kraft-dark: #E4D3A8;
+    --ink: #2B4131;
+    --ink-soft: #4B5F45;
+    --coral: #E1665B;
+    --gold: #D98E33;
+    --teal: #1B6E7A;
+    --meadow: #5B8C51;
+    --indigo: #3B3565;
+    --paper: #FBF6E8;
+    --stamp-red: #B84A3E;
+    --panda-ink: #2B2320;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:'Quicksand', -apple-system, 'Segoe UI', sans-serif;
+    background: radial-gradient(ellipse at top, #3d2f22 0%, #1c1710 100%);
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh;
+    color:var(--ink);
+    overflow:hidden;
+  }
+  .display{font-family:'Baloo 2','Comic Sans MS','Segoe UI Rounded',sans-serif;}
+
+  #app{
+    width:min(980px, 96vw);
+    height:min(680px, 94vh);
+    background:var(--kraft);
+    border-radius:22px;
+    box-shadow:0 30px 60px rgba(0,0,0,.5), 0 0 0 10px #3d2f22, 0 0 0 12px #6b5236;
+    display:flex; flex-direction:column;
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* ---------- DR. EESHA CHARACTER ---------- */
+  .de-bounce{ animation:deBounce 3.2s ease-in-out infinite; transform-origin:center bottom; }
+  @keyframes deBounce{
+    0%,100%{transform:translateY(0) rotate(-1.5deg);}
+    50%{transform:translateY(-5px) rotate(1.5deg);}
+  }
+  .de-lid{ transform:scaleY(0); transform-origin:center top; animation:deBlink 4.4s ease-in-out infinite; }
+  .de-lid.lid2{ animation-delay:.08s; }
+  @keyframes deBlink{
+    0%,92%,100%{transform:scaleY(0);}
+    95%{transform:scaleY(1);}
+    97%{transform:scaleY(0);}
+  }
+  .de-mouth-open{ opacity:0; }
+  .is-talking .de-mouth-open{ animation:deFlapOpen .32s ease-in-out infinite; }
+  .is-talking .de-mouth-closed{ animation:deFlapClosed .32s ease-in-out infinite; }
+  @keyframes deFlapOpen{ 0%,100%{opacity:0; transform:scaleY(.4);} 50%{opacity:1; transform:scaleY(1);} }
+  @keyframes deFlapClosed{ 0%,100%{opacity:1;} 50%{opacity:0;} }
+  .de-wave{ animation:deWave 1.8s ease-in-out infinite; transform-origin:88% 20%; }
+  @keyframes deWave{
+    0%,100%{transform:rotate(0deg);}
+    25%{transform:rotate(-18deg);}
+    50%{transform:rotate(4deg);}
+    75%{transform:rotate(-14deg);}
+  }
+  .dr-eesha-svg{overflow:visible; display:block;}
+
+  /* ---------- START SCREEN ---------- */
+  #startScreen{
+    position:absolute; inset:0; z-index:50;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,.12), transparent 40%),
+      linear-gradient(135deg, var(--meadow), var(--teal) 60%, var(--indigo));
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; color:#fff; padding:1.5rem;
+    transition:opacity .6s ease, visibility .6s ease;
+  }
+  #startScreen.hidden{opacity:0; visibility:hidden; pointer-events:none;}
+  .showLogo{
+    font-family:'Baloo 2',sans-serif; font-weight:800;
+    font-size:.95rem; letter-spacing:1.5px;
+    background:var(--coral); color:#fff;
+    padding:.3rem 1rem; border-radius:999px;
+    border:3px solid #fff;
+    margin-bottom:.7rem;
+    box-shadow:0 4px 0 rgba(0,0,0,.15);
+  }
+  #startScreen h1{
+    font-size:clamp(1.9rem, 4.8vw, 3rem);
+    margin:.2rem 0 .3rem;
+    text-shadow:0 3px 0 rgba(0,0,0,.2);
+  }
+  #startScreen p{
+    font-size:1.05rem; max-width:32rem; line-height:1.5;
+    color:rgba(255,255,255,.92);
+    margin:.3rem 0 1.1rem;
+  }
+  .startBtn{
+    font-family:'Baloo 2',sans-serif;
+    font-size:1.25rem; font-weight:700;
+    background:var(--coral); color:#fff;
+    border:3px solid #fff; border-radius:999px;
+    padding:.8rem 2.3rem;
+    cursor:pointer;
+    box-shadow:0 8px 0 #a8433a, 0 10px 20px rgba(0,0,0,.3);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .startBtn:hover{transform:translateY(-2px);}
+  .startBtn:active{transform:translateY(4px); box-shadow:0 4px 0 #a8433a;}
+  .startHint{margin-top:1rem; font-size:.85rem; color:rgba(255,255,255,.75);}
+
+  /* ---------- TOP BAR ---------- */
+  #topbar{
+    background:var(--kraft-dark);
+    padding:.55rem 1.1rem .5rem;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:2px dashed #c9b57e;
+    flex-shrink:0;
+  }
+  #journalTitle{
+    font-family:'Baloo 2',sans-serif; font-weight:800;
+    font-size:1.05rem; color:var(--ink);
+    display:flex; align-items:center; gap:.45rem;
+  }
+  #journalTitle .tag{
+    background:var(--coral); color:#fff; font-size:.62rem; font-weight:800;
+    padding:.15rem .45rem; border-radius:999px; letter-spacing:.5px;
+  }
+  #pageLabel{
+    font-size:.85rem; font-weight:700; color:var(--ink-soft);
+  }
+  #progressTrack{
+    height:6px; background:#d8c48f; border-radius:4px; margin:0 1.1rem .6rem;
+    overflow:hidden; flex-shrink:0;
+  }
+  #progressFill{
+    height:100%; width:0%; background:linear-gradient(90deg,var(--coral),var(--gold));
+    border-radius:4px; transition:width .4s ease;
+  }
+
+  /* ---------- BADGE TRAIL ---------- */
+  #badgeTrail{
+    display:flex; justify-content:center; gap:.55rem;
+    padding:0 1rem .55rem;
+    flex-shrink:0;
+  }
+  .badge{
+    width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.05rem;
+    background:var(--paper);
+    border:2.5px solid #b9a06a;
+    opacity:.55; filter:grayscale(60%);
+    cursor:pointer;
+    transition:transform .25s ease, opacity .25s ease, filter .25s ease, border-color .25s ease;
+    position:relative;
+  }
+  .badge:hover{transform:translateY(-2px);}
+  .badge.stamped{
+    opacity:1; filter:none;
+    border:2.5px solid var(--stamp-red);
+    box-shadow:0 3px 0 rgba(184,74,62,.35);
+    animation:stampPop .45s ease;
+  }
+  .badge.current{
+    box-shadow:0 0 0 4px rgba(225,102,91,.35);
+    transform:scale(1.12);
+  }
+  @keyframes stampPop{
+    0%{transform:scale(1.6) rotate(-14deg); opacity:0;}
+    60%{transform:scale(.92) rotate(4deg);}
+    100%{transform:scale(1) rotate(0deg);}
+  }
+
+  /* ---------- STAGE ---------- */
+  #stage{
+    flex:1;
+    position:relative;
+    margin:0 1rem;
+    border-radius:14px;
+    overflow:hidden;
+    background:#274;
+    box-shadow: inset 0 0 0 3px rgba(255,255,255,.25);
+    transition:background 1s ease;
+  }
+  .scene-layer{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; transition:opacity .7s ease;
+    pointer-events:none;
+  }
+  .scene-layer.active{opacity:1; pointer-events:auto;}
+
+  .float-el{position:absolute; will-change:transform;}
+
+  @keyframes floatY{
+    0%,100%{transform:translateY(0px);}
+    50%{transform:translateY(-16px);}
+  }
+  @keyframes bob{
+    0%,100%{transform:translateY(0) rotate(0deg);}
+    50%{transform:translateY(-10px) rotate(3deg);}
+  }
+  @keyframes hop{
+    0%,20%,100%{transform:translateY(0) scaleY(1);}
+    10%{transform:translateY(-34px) scaleY(1.05);}
+  }
+  @keyframes swim{
+    0%{transform:translateX(-10%) translateY(0);}
+    50%{transform:translateX(10%) translateY(-8px);}
+    100%{transform:translateX(-10%) translateY(0);}
+  }
+  @keyframes flyAcross{
+    0%{transform:translate(-30%, 10%);}
+    100%{transform:translate(320%, -40%);}
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:.35;}
+    50%{opacity:1;}
+  }
+  @keyframes wag{
+    0%,100%{transform:rotate(-6deg);}
+    50%{transform:rotate(6deg);}
+  }
+  @keyframes pulseGlow{
+    0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.5);}
+    50%{box-shadow:0 0 30px 10px rgba(255,255,255,.35);}
+  }
+  @keyframes popIn{
+    0%{transform:scale(.5); opacity:0;}
+    70%{transform:scale(1.08); opacity:1;}
+    100%{transform:scale(1);}
+  }
+  @keyframes confettiFall{
+    0%{transform:translateY(-10%) rotate(0deg); opacity:1;}
+    100%{transform:translateY(120%) rotate(360deg); opacity:.2;}
+  }
+
+  .emoji-lg{font-size:5.2rem; filter:drop-shadow(0 10px 12px rgba(0,0,0,.28));}
+  .emoji-md{font-size:3.4rem; filter:drop-shadow(0 6px 8px rgba(0,0,0,.25));}
+  .emoji-sm{font-size:2rem;}
+
+  .stage-heading{
+    position:absolute; top:14px; left:0; right:0;
+    text-align:center;
+    font-family:'Baloo 2',sans-serif; font-weight:800;
+    font-size:clamp(1.1rem,2.6vw,1.6rem);
+    color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.35);
+    letter-spacing:.3px;
+    z-index:5;
+  }
+
+  .sort-col{
+    position:absolute; top:64px; bottom:80px;
+    width:38%;
+    border-radius:12px;
+    background:rgba(255,255,255,.14);
+    border:2px dashed rgba(255,255,255,.55);
+    display:flex; flex-direction:column; align-items:center;
+    padding-top:.6rem;
+  }
+  .sort-col span.lbl{
+    font-family:'Baloo 2',sans-serif; font-weight:700; color:#fff;
+    font-size:.95rem; margin-bottom:.4rem; text-shadow:0 1px 3px rgba(0,0,0,.3);
+  }
+  .sort-items{display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center; padding:0 .5rem;}
+  .sort-items .emoji-sm{animation:floatY 3.4s ease-in-out infinite;}
+
+  .fact-pill{
+    position:absolute; bottom:16px; left:50%; transform:translateX(-50%);
+    background:rgba(255,255,255,.94); color:var(--ink);
+    padding:.35rem 1rem; border-radius:999px;
+    font-size:.8rem; font-weight:800;
+    box-shadow:0 4px 0 rgba(0,0,0,.15);
+    font-family:'Quicksand',sans-serif;
+    border:2px solid var(--panda-ink);
+    white-space:nowrap;
+  }
+
+  /* ---------- HOST CORNER (recurring small Dr. Eesha) ---------- */
+  .host-corner{
+    position:absolute; left:10px; bottom:10px; width:64px; height:64px; z-index:6;
+    filter:drop-shadow(0 6px 6px rgba(0,0,0,.3));
+  }
+
+  /* ---------- CAPTION NOTE ---------- */
+  #captionWrap{
+    padding:.7rem 1rem .3rem;
+    flex-shrink:0;
+  }
+  #captionNote{
+    background:var(--paper);
+    border-radius:14px;
+    padding:.75rem 1.1rem;
+    box-shadow:0 3px 0 #d8c48f, 0 4px 10px rgba(0,0,0,.08);
+    font-size:1rem; line-height:1.45; color:var(--ink);
+    min-height:3.4em;
+    display:flex; align-items:center; gap:.7rem;
+    position:relative;
+  }
+  #captionAvatar{ width:52px; height:52px; flex-shrink:0; }
+  #captionText{flex:1;}
+
+  /* ---------- CONTROLS ---------- */
+  #controls{
+    display:flex; align-items:center; justify-content:center; gap:.65rem;
+    padding:.5rem 1rem .9rem;
+    flex-shrink:0;
+  }
+  .ctrlBtn{
+    font-family:'Baloo 2',sans-serif;
+    border:none; border-radius:999px;
+    background:var(--paper); color:var(--ink);
+    width:42px; height:42px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.15rem; cursor:pointer;
+    box-shadow:0 3px 0 #d8c48f;
+    transition:transform .1s ease;
+  }
+  .ctrlBtn:hover{transform:translateY(-1px);}
+  .ctrlBtn:active{transform:translateY(2px); box-shadow:0 1px 0 #d8c48f;}
+  .ctrlBtn:focus-visible, .badge:focus-visible, .startBtn:focus-visible, .quizOpt:focus-visible{
+    outline:3px solid #2b6cb0; outline-offset:2px;
+  }
+  #playBtn{
+    width:58px; height:58px; font-size:1.5rem;
+    background:var(--coral); color:#fff;
+    box-shadow:0 4px 0 #a8433a;
+  }
+  #muteBtn.muted{opacity:.5;}
+
+  /* ---------- QUIZ ---------- */
+  .quiz-card{
+    background:rgba(255,255,255,.96);
+    border-radius:14px; padding:1rem 1.2rem;
+    width:min(560px,86%);
+    box-shadow:0 8px 24px rgba(0,0,0,.18);
+    border:3px solid var(--panda-ink);
+  }
+  .quiz-q{font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.05rem; color:var(--ink); margin-bottom:.7rem; text-align:center;}
+  .quiz-opts{display:grid; grid-template-columns:1fr 1fr; gap:.55rem;}
+  .quizOpt{
+    font-family:'Quicksand',sans-serif; font-weight:700;
+    background:#fff; border:2px solid #d8c48f; border-radius:10px;
+    padding:.55rem .5rem; cursor:pointer; font-size:.88rem; color:var(--ink);
+    transition:transform .12s ease, background .2s ease, border-color .2s ease;
+  }
+  .quizOpt:hover{transform:translateY(-2px);}
+  .quizOpt.correct{background:#DCF5DE; border-color:#4c9a5b; animation:popIn .35s ease;}
+  .quizOpt.wrong{background:#FBE1DE; border-color:var(--coral); animation:shake .4s ease;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-5px);}
+    75%{transform:translateX(5px);}
+  }
+  .quizFeedback{text-align:center; margin-top:.6rem; font-weight:700; font-family:'Baloo 2',sans-serif; min-height:1.4em; font-size:.95rem;}
+  .quiz-progress{display:flex; justify-content:center; gap:.4rem; margin-bottom:.5rem;}
+  .quiz-dot{width:8px; height:8px; border-radius:50%; background:#d8c48f;}
+  .quiz-dot.on{background:var(--coral);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important;}
+  }
+
+  @media (max-width:640px){
+    .emoji-lg{font-size:3.6rem;}
+    .emoji-md{font-size:2.4rem;}
+    #app{border-radius:14px;}
+    .quiz-opts{grid-template-columns:1fr;}
+    .host-corner{width:48px; height:48px;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="startScreen">
+    <div class="showLogo">🔬 EPISODE 11</div>
+    <div id="startHero" style="width:150px;height:165px;margin-bottom:.3rem;"></div>
+    <h1 class="display">The Dr. Eesha Show</h1>
+    <p>Hi friends! I'm <strong>Dr. Eesha</strong>, and today we're diving into <strong>Amazing Earth & Adaptations</strong> — How our planet works, and how animals survive it! Turn your sound on, then tap the button — let's go exploring!</p>
+    <button class="startBtn display" id="startBtn">▶ Start the Show!</button>
+    <div class="startHint">🔊 Best with sound on — Dr. Eesha reads every segment out loud to you.</div>
+  </div>
+
+  <div id="topbar">
+    <div id="journalTitle"><span>🔬</span> The Dr. Eesha Show <span class="tag">S1</span></div>
+    <div id="pageLabel">Segment 1 of 9</div>
+  </div>
+  <div id="progressTrack"><div id="progressFill"></div></div>
+  <div id="badgeTrail"></div>
+
+  <div id="stage"></div>
+
+  <div id="captionWrap">
+    <div id="captionNote"><div id="captionAvatar"></div><div id="captionText">Tap Start the Show to meet Dr. Eesha!</div></div>
+  </div>
+
+  <div id="controls">
+    <button class="ctrlBtn" id="prevBtn" title="Previous segment" aria-label="Previous segment">⏮</button>
+    <button class="ctrlBtn" id="replayBtn" title="Replay this segment" aria-label="Replay this segment">↺</button>
+    <button class="ctrlBtn" id="playBtn" title="Play/Pause" aria-label="Play or pause">▶</button>
+    <button class="ctrlBtn" id="muteBtn" title="Mute/Unmute narration" aria-label="Mute or unmute narration">🔊</button>
+    <button class="ctrlBtn" id="nextBtn" title="Next segment" aria-label="Next segment">⏭</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------------- DR. EESHA SVG ----------------
+  function eeshaSVG(opts){
+    opts = opts || {};
+    var withArms = opts.wave;
+    return (
+    '<svg class="dr-eesha-svg" viewBox="0 0 200 230" width="100%" height="100%">' +
+      '<g class="de-bounce">' +
+        (withArms ? '<path d="M150 168 Q178 150 172 118 Q168 140 148 152 Z" fill="#FFFFFF" stroke="#2B2320" stroke-width="4" stroke-linejoin="round" class="de-wave"/>' : '') +
+        '<path d="M38 196 Q100 148 162 196 L172 230 L28 230 Z" fill="#FFFFFF" stroke="#2B2320" stroke-width="4" stroke-linejoin="round"/>' +
+        '<path d="M78 190 L100 214 L122 190 Z" fill="#E1665B" stroke="#2B2320" stroke-width="3" stroke-linejoin="round"/>' +
+        '<circle cx="100" cy="203" r="6" fill="#F4C542" stroke="#2B2320" stroke-width="2"/>' +
+        '<circle cx="55" cy="55" r="27" fill="#2B2320"/>' +
+        '<circle cx="145" cy="55" r="27" fill="#2B2320"/>' +
+        '<circle cx="55" cy="55" r="13" fill="#F8B4B0"/>' +
+        '<circle cx="145" cy="55" r="13" fill="#F8B4B0"/>' +
+        '<circle cx="100" cy="108" r="76" fill="#FFFFFF" stroke="#2B2320" stroke-width="4"/>' +
+        '<ellipse cx="71" cy="108" rx="27" ry="33" fill="#2B2320"/>' +
+        '<ellipse cx="129" cy="108" rx="27" ry="33" fill="#2B2320"/>' +
+        '<circle cx="71" cy="111" r="15" fill="#FFFFFF"/>' +
+        '<circle cx="129" cy="111" r="15" fill="#FFFFFF"/>' +
+        '<circle cx="73" cy="113" r="7.5" fill="#2B2320"/>' +
+        '<circle cx="131" cy="113" r="7.5" fill="#2B2320"/>' +
+        '<circle cx="76" cy="109" r="2.6" fill="#FFFFFF"/>' +
+        '<circle cx="134" cy="109" r="2.6" fill="#FFFFFF"/>' +
+        '<rect class="de-lid lid1" x="56" y="90" width="30" height="22" rx="4" fill="#FFFFFF"/>' +
+        '<rect class="de-lid lid2" x="114" y="90" width="30" height="22" rx="4" fill="#FFFFFF"/>' +
+        '<g stroke="#3B3565" stroke-width="3.6" fill="none">' +
+          '<circle cx="71" cy="111" r="20"/>' +
+          '<circle cx="129" cy="111" r="20"/>' +
+          '<line x1="91" y1="109" x2="109" y2="109"/>' +
+          '<line x1="51" y1="104" x2="41" y2="98"/>' +
+          '<line x1="149" y1="104" x2="159" y2="98"/>' +
+        '</g>' +
+        '<ellipse cx="54" cy="134" rx="10.5" ry="6.5" fill="#F8B4B0" opacity=".75"/>' +
+        '<ellipse cx="146" cy="134" rx="10.5" ry="6.5" fill="#F8B4B0" opacity=".75"/>' +
+        '<ellipse cx="100" cy="130" rx="9.5" ry="6.5" fill="#2B2320"/>' +
+        '<path class="de-mouth-closed" d="M84 143 Q100 156 116 143" stroke="#2B2320" stroke-width="3.6" fill="none" stroke-linecap="round"/>' +
+        '<ellipse class="de-mouth-open" cx="100" cy="148" rx="11" ry="9" fill="#B84A3E"/>' +
+        '<path d="M93 30 Q100 8 109 28 Q114 12 120 29" stroke="#2B2320" stroke-width="4.5" fill="none" stroke-linecap="round"/>' +
+      '</g>' +
+    '</svg>');
+  }
+
+  // ---------------- SCENE DATA ----------------
+  const BADGES = ["🔄","💧","🐇","🎯"]; // maps to scenes[1..4]
+
+  function stageHTML(inner, extra){
+    return '<div class="scene-layer" data-scene="'+extra+'">' + inner +
+      '<div class="host-corner">'+eeshaSVG()+'</div></div>';
+  }
+
+  const scenes = [
+    {
+      page:"Meet Dr. Eesha",
+      badge:null,
+      narration:'Hi friends, I\'m Dr. Eesha! Today we\'re exploring Amazing Earth and Adaptations, how our planet works, and how animals survive it. Ready? Let\'s dive in!',
+      bg:"linear-gradient(135deg,#E1665B,#D98E33)",
+      html:function(){
+        return (
+          '<div class="stage-heading">Hi, I\'m Dr. Eesha!</div>' +
+          '<div class="float-el" style="left:50%;top:50%;transform:translate(-50%,-46%);width:150px;height:170px;">'+eeshaSVG({wave:true})+'</div>' +
+          '<div class="float-el emoji-md" style="left:10%;top:18%;animation:floatY 4s ease-in-out infinite;">🌗</div>' +
+          '<div class="float-el emoji-md" style="right:10%;top:16%;animation:floatY 4.6s ease-in-out infinite 0.4s;">💧</div>' +
+          '<div class="float-el emoji-sm" style="left:16%;bottom:14%;animation:floatY 3s ease-in-out infinite;">🦎</div>' +
+          '<div class="float-el emoji-sm" style="right:14%;bottom:16%;animation:floatY 3.4s ease-in-out infinite .3s;">🐦</div>'
+        );
+      },
+      noHostCorner:true
+    },
+    {
+      page:"Why Day Turns to Night",
+      badge:0,
+      narration:'The Earth spins on an imaginary line called its axis, running from the North Pole to the South Pole. This spinning motion is called rotation, and it\'s what causes day and night! As different parts of the Earth face the sun, it looks like the sun rises in the east and sets in the west. But the sun itself isn\'t actually moving across the sky, it\'s the Earth\'s rotation creating that illusion!',
+      bg:"linear-gradient(135deg,#5B8C51,#2f6b52)",
+      html:function(){
+        return (
+          '<div class="stage-heading">Why Day Turns to Night</div>' +
+          '<div class="float-el emoji-lg" style="left:18%;top:34%;animation:bob 3.6s ease-in-out infinite;" title="Rotation">🔄</div>' +
+          '<div class="float-el emoji-md" style="left:50%;top:26%;transform:translateX(-50%);animation:floatY 3.2s ease-in-out infinite .2s;" title="Sunrise & Sunset">🌅</div>' +
+          '<div class="float-el emoji-lg" style="right:16%;top:40%;animation:swim 4.2s ease-in-out infinite .4s;" title="An Illusion!">☀️</div>' +
+          '<div class="fact-pill">💡 Rotation causes day and night!</div>'
+        );
+      }
+    },
+    {
+      page:"The Never-Ending Water Cycle",
+      badge:1,
+      narration:'Water keeps moving on, above, and below Earth\'s surface, powered by the Sun\'s energy and gravity. It changes form too, moving between liquid, like rain and rivers, and vapour, through evaporation, and sometimes even ice. Desert plants like cactus have spines instead of leaves, to reduce water loss through evaporation. And untreated household sewage contains bacteria that can cause serious illness.',
+      bg:"linear-gradient(135deg,#1B6E7A,#134f57)",
+      html:function(){
+        return (
+          '<div class="stage-heading">The Never-Ending Water Cycle</div>' +
+          '<div class="float-el emoji-lg" style="left:18%;top:34%;animation:bob 3.6s ease-in-out infinite;" title="Changes Form">💧</div>' +
+          '<div class="float-el emoji-md" style="left:50%;top:26%;transform:translateX(-50%);animation:floatY 3.2s ease-in-out infinite .2s;" title="Cactus Spines">🌵</div>' +
+          '<div class="float-el emoji-lg" style="right:16%;top:40%;animation:swim 4.2s ease-in-out infinite .4s;" title="Household Sewage">🚿</div>' +
+          '<div class="fact-pill">💡 Powered by the Sun\'s energy and gravity!</div>'
+        );
+      }
+    },
+    {
+      page:"Clever Animal Tricks",
+      badge:2,
+      narration:'Animals have amazing built-in tricks to help them survive in their habitat! A rabbit\'s white fur helps it blend into snow, hiding it from predators, that\'s called camouflage. Birds travel long distances every winter in search of food, that\'s called migration. And here\'s a fun one: turtles live in water and come ashore mainly just to lay eggs, while tortoises live exclusively on land!',
+      bg:"linear-gradient(135deg,#D98E33,#a9631a)",
+      html:function(){
+        return (
+          '<div class="stage-heading">Clever Animal Tricks</div>' +
+          '<div class="float-el emoji-lg" style="left:18%;top:34%;animation:bob 3.6s ease-in-out infinite;" title="Camouflage">🐇</div>' +
+          '<div class="float-el emoji-md" style="left:50%;top:26%;transform:translateX(-50%);animation:floatY 3.2s ease-in-out infinite .2s;" title="Migration">🕊️</div>' +
+          '<div class="float-el emoji-lg" style="right:16%;top:40%;animation:swim 4.2s ease-in-out infinite .4s;" title="Turtles vs Tortoises">🐢</div>' +
+          '<div class="fact-pill">💡 Nature\'s own super-scientists!</div>'
+        );
+      }
+    },
+    {
+      page:"Pop Quiz!",
+      badge:3,
+      narration:'Pop quiz time, friends! This is my favourite part. Let\'s see how much you remember about Amazing Earth & Adaptations — read each question carefully and think about your answer. You\'ve got this!',
+      bg:"linear-gradient(135deg,#D98E33,#E1665B)",
+      isQuiz:true,
+      html:function(){
+        return '<div id="quizStage" class="float-el" style="left:50%;top:50%;transform:translate(-50%,-50%);width:100%;display:flex;justify-content:center;"></div>';
+      },
+      noHostCorner:true
+    },
+    {
+      page:"You Did It!",
+      badge:null,
+      narration:'Wow, look at you go! You now know why day turns to night, how the water cycle works, and the clever tricks animals use to survive. That\'s it for today\'s episode, friends, I\'m Dr. Eesha, signing off. Stay curious, stay wild, and I\'ll see you in the next episode!',
+      bg:"linear-gradient(135deg,#E1665B,#D98E33 50%,#5B8C51)",
+      html:function(){
+        var confetti = Array.from({length:14}).map(function(_,i){
+          var em=['🎉','⭐','🍃','🦋'][i%4];
+          return '<div class="float-el emoji-sm" style="left:'+((i*7+3)%96)+'%;top:-10%;animation:confettiFall '+(2.4+(i%5)*.4)+'s linear infinite -'+(i*.5)+'s;">'+em+'</div>';
+        }).join('');
+        return (
+          '<div class="stage-heading">🏆 Junior Amazing Earth & Adaptations Expert! 🏆</div>' +
+          '<div class="float-el" style="left:50%;top:56%;transform:translate(-50%,-50%);width:140px;height:158px;">'+eeshaSVG({wave:true})+'</div>' +
+          confetti
+        );
+      },
+      noHostCorner:true
+    }
+  ];
+
+  const quizQuestions = [
+    { q:"Which statement is true about the Earth\'s rotation?", opts:["It causes day and night","It only happens once a year","It makes the sun move across the sky","It has no effect on us"], correct:0,
+      right:"Yes! Rotation causes day and night.", wrong:"Not quite — think about spinning on an axis!" },
+    { q:"A rabbit\'s white fur helps it blend into snow. What is this called?", opts:["Camouflage","Hibernate","Aestivate","Migrate"], correct:0,
+      right:"Correct — camouflage!", wrong:"Try again — think about blending in to hide!" },
+    { q:"Birds travel long distances for food in winter. What\'s this called?", opts:["Hunting","Migration","Breeding","Jumping"], correct:1,
+      right:"Exactly — migration!", wrong:"Not quite — think about long seasonal journeys!" }
+  ];
+
+
+  // ---------------- STATE ----------------
+  let idx = 0;
+  let playing = false;
+  let muted = false;
+  let activeTimers = [];
+  let quizIndex = 0;
+  let quizScore = 0;
+
+  const stage = document.getElementById('stage');
+  const captionText = document.getElementById('captionText');
+  const captionAvatar = document.getElementById('captionAvatar');
+  const pageLabel = document.getElementById('pageLabel');
+  const progressFill = document.getElementById('progressFill');
+  const badgeTrail = document.getElementById('badgeTrail');
+  const playBtn = document.getElementById('playBtn');
+  const muteBtn = document.getElementById('muteBtn');
+
+  captionAvatar.innerHTML = eeshaSVG();
+  document.getElementById('startHero').innerHTML = eeshaSVG({wave:true});
+
+  // Build badge trail
+  BADGES.forEach((b,i)=>{
+    const el = document.createElement('button');
+    el.className = 'badge';
+    el.textContent = b;
+    el.setAttribute('aria-label','Jump to topic '+(i+1));
+    el.addEventListener('click', ()=>{ goTo(i+1); });
+    badgeTrail.appendChild(el);
+  });
+  const badgeEls = Array.from(badgeTrail.children);
+
+  function estimateDuration(text){
+    const words = text.trim().split(/\s+/).length;
+    return Math.max(4500, (words/150)*60000 + 900);
+  }
+
+  function updateBadges(){
+    badgeEls.forEach((el,i)=>{
+      el.classList.toggle('stamped', i < idx || (scenes[idx].badge===i));
+      el.classList.toggle('current', scenes[idx].badge===i);
+    });
+  }
+
+  function updateChrome(){
+    pageLabel.textContent = `Segment ${idx+1} of ${scenes.length}`;
+    progressFill.style.width = ((idx)/(scenes.length-1)*100)+'%';
+    updateBadges();
+  }
+
+  function renderScene(){
+    const sc = scenes[idx];
+    stage.style.background = sc.bg;
+    const inner = sc.html();
+    stage.innerHTML = sc.noHostCorner ? ('<div class="scene-layer" data-scene="'+idx+'">'+inner+'</div>') : stageHTML(inner, idx);
+    requestAnimationFrame(()=>{
+      const layer = stage.querySelector('.scene-layer');
+      if(layer) layer.classList.add('active');
+    });
+    captionText.textContent = sc.narration;
+    updateChrome();
+    if(sc.isQuiz){ renderQuiz(); }
+  }
+
+  function setTalking(on){
+    captionAvatar.classList.toggle('is-talking', on);
+    const hostCorner = stage.querySelector('.host-corner');
+    if(hostCorner) hostCorner.classList.toggle('is-talking', on);
+  }
+
+  function clearAllTimers(){
+    activeTimers.forEach(id=>clearTimeout(id));
+    activeTimers = [];
+  }
+
+  function speak(text, onEnd){
+    const dur = estimateDuration(text);
+    let fired = false;
+    setTalking(true);
+    function finish(){
+      if(fired) return;
+      fired = true;
+      clearAllTimers();
+      setTalking(false);
+      if(playing) onEnd();
+    }
+    if(muted || !('speechSynthesis' in window)){
+      activeTimers.push(setTimeout(finish, dur));
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.95;
+    utter.pitch = 1.12;
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v=>/en/i.test(v.lang) && /female|zira|samantha|susan|karen|google us english/i.test(v.name)) || voices.find(v=>/en/i.test(v.lang));
+    if(preferred) utter.voice = preferred;
+    utter.onend = finish;
+    utter.onerror = ()=>{ activeTimers.push(setTimeout(finish, dur)); };
+    window.speechSynthesis.speak(utter);
+    activeTimers.push(setTimeout(finish, dur + 5000));
+  }
+
+  function clearTimers(){
+    clearAllTimers();
+    setTalking(false);
+    if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  }
+
+  function playCurrent(){
+    clearTimers();
+    const sc = scenes[idx];
+    if(sc.isQuiz){ playBtn.textContent='▶'; playing=false; return; }
+    speak(sc.narration, ()=>{
+      if(idx < scenes.length-1){ idx++; renderScene(); playCurrent(); }
+      else { playing=false; playBtn.textContent='▶'; }
+    });
+  }
+
+  function goTo(i){
+    idx = Math.max(0, Math.min(scenes.length-1, i));
+    clearTimers();
+    renderScene();
+    if(playing) playCurrent();
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', ()=>goTo(idx+1));
+  document.getElementById('prevBtn').addEventListener('click', ()=>goTo(idx-1));
+  document.getElementById('replayBtn').addEventListener('click', ()=>{ clearTimers(); renderScene(); if(playing) playCurrent(); });
+
+  playBtn.addEventListener('click', ()=>{
+    playing = !playing;
+    playBtn.textContent = playing ? '❚❚' : '▶';
+    if(playing){ playCurrent(); } else { clearTimers(); }
+  });
+
+  muteBtn.addEventListener('click', ()=>{
+    muted = !muted;
+    muteBtn.classList.toggle('muted', muted);
+    muteBtn.textContent = muted ? '🔇' : '🔊';
+    if(muted && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+  });
+
+  document.addEventListener('keydown', (e)=>{
+    if(document.getElementById('startScreen').classList.contains('hidden')===false) return;
+    if(e.code==='Space'){ e.preventDefault(); playBtn.click(); }
+    if(e.code==='ArrowRight'){ goTo(idx+1); }
+    if(e.code==='ArrowLeft'){ goTo(idx-1); }
+  });
+
+  document.getElementById('startBtn').addEventListener('click', ()=>{
+    document.getElementById('startScreen').classList.add('hidden');
+    if('speechSynthesis' in window){ window.speechSynthesis.getVoices(); }
+    renderScene();
+    playing = true;
+    playBtn.textContent = '❚❚';
+    playCurrent();
+  });
+
+  // ---------------- QUIZ LOGIC ----------------
+  function renderQuiz(){
+    quizIndex = 0; quizScore = 0;
+    renderQuizQuestion();
+  }
+  function renderQuizQuestion(){
+    const holder = document.getElementById('quizStage');
+    if(!holder) return;
+    if(quizIndex >= quizQuestions.length){
+      holder.innerHTML = `
+        <div class="quiz-card" style="text-align:center;">
+          <div style="font-size:2.4rem;">🎉</div>
+          <div class="quiz-q display">You scored ${quizScore} / ${quizQuestions.length}!</div>
+          <div style="margin-top:.4rem;color:#4B5F45;">Tap Next to finish today's episode.</div>
+        </div>`;
+      return;
+    }
+    const q = quizQuestions[quizIndex];
+    holder.innerHTML = `
+      <div class="quiz-card">
+        <div class="quiz-progress">${quizQuestions.map((_,i)=>`<div class="quiz-dot ${i<=quizIndex?'on':''}"></div>`).join('')}</div>
+        <div class="quiz-q display">${q.q}</div>
+        <div class="quiz-opts">
+          ${q.opts.map((o,i)=>`<button class="quizOpt" data-i="${i}">${o}</button>`).join('')}
+        </div>
+        <div class="quizFeedback" id="quizFeedback"></div>
+      </div>`;
+    holder.querySelectorAll('.quizOpt').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if(holder.dataset.answered) return;
+        const i = +btn.dataset.i;
+        const feedback = document.getElementById('quizFeedback');
+        if(i === q.correct){
+          btn.classList.add('correct');
+          feedback.textContent = '✓ ' + q.right;
+          feedback.style.color = '#2f6b52';
+          holder.dataset.answered = '1';
+          quizScore++;
+          if(muted===false && 'speechSynthesis' in window){
+            const u = new SpeechSynthesisUtterance(q.right);
+            u.rate=0.95; u.pitch=1.12; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+          }
+          setTimeout(()=>{ quizIndex++; delete holder.dataset.answered; renderQuizQuestion(); }, 1600);
+        } else {
+          btn.classList.add('wrong');
+          feedback.textContent = '✗ ' + q.wrong;
+          feedback.style.color = '#B84A3E';
+          setTimeout(()=>btn.classList.remove('wrong'), 500);
+        }
+      });
+    });
+  }
+
+})();
+</script>
+</body>
+</html>
