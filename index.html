@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Dr. Eesha Show — Green Olympiad Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --kraft: #F1E4C6; --kraft-dark: #E4D3A8; --ink: #2B4131; --ink-soft: #4B5F45;
+    --coral: #E1665B; --gold: #D98E33; --teal: #1B6E7A; --meadow: #5B8C51;
+    --indigo: #3B3565; --paper: #FBF6E8; --panda-ink: #2B2320;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Quicksand', -apple-system, 'Segoe UI', sans-serif;
+    background: radial-gradient(ellipse at top, #3d2f22 0%, #1c1710 100%);
+    color:var(--ink); min-height:100vh; padding:2.5rem 1rem;
+  }
+  .display{font-family:'Baloo 2','Comic Sans MS','Segoe UI Rounded',sans-serif;}
+  #wrap{max-width:1040px; margin:0 auto;}
+  header{text-align:center; color:#fff; margin-bottom:2rem;}
+  .showLogo{
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:.9rem; letter-spacing:1.5px;
+    background:var(--coral); color:#fff; padding:.3rem 1.1rem; border-radius:999px;
+    border:3px solid #fff; display:inline-block; margin-bottom:.9rem;
+    box-shadow:0 4px 0 rgba(0,0,0,.15);
+  }
+  header h1{font-size:clamp(2rem,5vw,3rem); margin:.2rem 0 .5rem; text-shadow:0 3px 0 rgba(0,0,0,.2);}
+  header p{font-size:1.05rem; color:rgba(255,255,255,.85); max-width:36rem; margin:0 auto; line-height:1.5;}
+
+  #grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:1.1rem; margin-bottom:2rem;
+  }
+  .card{
+    background:var(--kraft); border-radius:16px; padding:1.2rem 1.1rem 1.1rem;
+    text-decoration:none; color:var(--ink); display:flex; flex-direction:column; gap:.5rem;
+    box-shadow:0 6px 0 #c9b57e, 0 8px 16px rgba(0,0,0,.25);
+    border:2px solid #c9b57e;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{transform:translateY(-4px); box-shadow:0 10px 0 #c9b57e, 0 14px 22px rgba(0,0,0,.3);}
+  .card .ep{
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:.68rem; letter-spacing:.5px;
+    color:var(--coral); text-transform:uppercase;
+  }
+  .card .icon{font-size:2.3rem; line-height:1;}
+  .card .name{font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.08rem; color:var(--ink);}
+  .card .tag{font-size:.82rem; color:var(--ink-soft); line-height:1.35;}
+
+  #quizBanner{
+    display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+    background:linear-gradient(135deg,var(--teal),var(--indigo));
+    border-radius:18px; padding:1.4rem 1.6rem; color:#fff;
+    box-shadow:0 8px 20px rgba(0,0,0,.3);
+  }
+  #quizBanner .txt h2{font-family:'Baloo 2',sans-serif; margin:0 0 .3rem; font-size:1.3rem;}
+  #quizBanner .txt p{margin:0; color:rgba(255,255,255,.85); font-size:.92rem; max-width:32rem;}
+  #quizBanner a{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1rem;
+    background:var(--coral); color:#fff; text-decoration:none;
+    border:3px solid #fff; border-radius:999px; padding:.65rem 1.6rem;
+    box-shadow:0 5px 0 #a8433a; white-space:nowrap;
+    transition:transform .12s ease;
+  }
+  #quizBanner a:hover{transform:translateY(-2px);}
+
+  footer{text-align:center; color:rgba(255,255,255,.5); font-size:.8rem; margin-top:2.2rem;}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <header>
+    <div class="showLogo">🔬 SEASON 1</div>
+    <h1 class="display">The Dr. Eesha Show</h1>
+    <p>11 animated episodes covering the full Green Olympiad syllabus — tap any topic below to start watching!</p>
+  </header>
+
+  <div id="grid">
+    <a class="card" href="Dr_Eesha_Show_Biodiversity_and_Animals.html">
+      <div class="ep">Episode 1</div>
+      <div class="icon">🐾</div>
+      <div class="name display">Biodiversity &amp; Animals</div>
+      <div class="tag">All the different living things around us</div>
+    </a>
+    <a class="card" href="Dr_Eesha_Show_Waste_Management.html">
+      <div class="ep">Episode 2</div>
+      <div class="icon">🗑️</div>
+      <div class="name display">Waste Management</div>
+      <div class="tag">Trash, recycling, and keeping our world clean</div>
+    </a>
+    <a class="card" href="Dr_Eesha_Show_Energy.html">
+      <div class="ep">Episode 3</div>
+      <div class="icon">⚡</div>
+      <div class="name display">Energy</div>
+      <div class="tag">Where power comes from &amp; how to save it</div>
+    </a>
+    <a class="card" href="Dr_Eesha_Show_Air_Pollution.html">
+      <div class="ep">Episode 4</div>
+      <div class="icon">💨</div>
+      <div class="name display">Air Pollution</div>
+      <div class="tag">What dirties our air, and how to stay safe</div>
+    </a>
+    <a class="card" href="Dr_Eesha_Show_Water.html">
+      <div class="ep">Episode 5</div>
+      <div class="icon">💧</div>
+      <div class="name display">Water</div>
+      <div class="tag">Our most precious resource</div>
+    </a>
+    <a class="card" href="Dr_Eesha_Show_Forests_Wildlife.html">
+      <div class="ep">Episode 6</div>
+      <div class="icon">🌳</div>
+      <div class="name display">Forests &amp; Wildlife</div>
+      <div class="tag">Protecting trees, animals &amp; their homes</div>
+    </a>
+    <a class="card" href="Dr_Eesha_Show_Sustainability.html">
+      <div class="ep">Episode 7</div>
+      <div class="icon">🌏</div>
+      <div class="name display">Sustainability</div>
+      <div class="tag">Taking care of our planet's future</div>
+    </a>
+    <a class="card" href="Dr_Eesha_Show_Ecosystems_Food_Chains.html">
+      <div class="ep">Episode 8</div>
+      <div class="icon">🌿</div>
+      <div class="name display">Ecosystems &amp; Food Chains</div>
+      <div class="tag">Who lives where, and who eats whom?</div>
+    </a>
+    <a class="card" href="Dr_Eesha_Show_Noise_EWaste_Plastic.html">
+      <div class="ep">Episode 9</div>
+      <div class="icon">🔊</div>
+      <div class="name display">Noise, E-Waste &amp; Plastic</div>
+      <div class="tag">Pollution you can hear, and waste that hides</div>
+    </a>
+    <a class="card" href="Dr_Eesha_Show_Green_Living_Jobs.html">
+      <div class="ep">Episode 10</div>
+      <div class="icon">💼</div>
+      <div class="name display">Green Living &amp; Jobs</div>
+      <div class="tag">Careers, schemes &amp; choices that protect our planet</div>
+    </a>
+    <a class="card" href="Dr_Eesha_Show_Earth_Adaptations.html">
+      <div class="ep">Episode 11</div>
+      <div class="icon">🌗</div>
+      <div class="name display">Amazing Earth &amp; Adaptations</div>
+      <div class="tag">How our planet works, and how animals survive it</div>
+    </a>
+  </div>
+
+  <div id="quizBanner">
+    <div class="txt">
+      <h2 class="display">🎯 Full Practice Quiz Bank</h2>
+      <p>Every sample question from the prep book, organized topic-wise — great for a final review before test day.</p>
+    </div>
+    <a href="quiz.html">Open Quiz Bank</a>
+  </div>
+
+  <footer>Made for the Green Olympiad, Std 4 &amp; 5 · The Dr. Eesha Show</footer>
+</div>
+</body>
+</html>
